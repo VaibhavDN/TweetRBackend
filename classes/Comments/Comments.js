@@ -34,10 +34,9 @@ exports.getComments = async (pageSize, pageNo, tweetId) => {
             id: tweetId,
         }
     }).catch((err) => {
-        console.log(ERROR.query_error, err)
         queryResult = {
             success: false,
-            data: ERROR.error_data_field,
+            data: ERROR.error_data_field
         }
         return queryResult
     })
@@ -64,7 +63,6 @@ exports.addComment = async (commentersId, name, commentText, tweetId) => {
         comment: commentText,
         postId: tweetId,
     }).catch((err) => {
-        console.log(ERROR.query_error, err)
         queryResult = {
             success: false,
             data: ERROR.error_data_field,
@@ -96,7 +94,6 @@ exports.updateComment = async (commentId, commentersId, commentText) => {
             ]
         }
     }).catch((err) => {
-        console.log(ERROR.query_error, err)
         queryResult = {
             success: false,
             data: ERROR.error_data_field,
@@ -117,14 +114,12 @@ exports.updateComment = async (commentId, commentersId, commentText) => {
  * @param {Integer} commentId 
  */
 exports.isLiked = async (userId, commentId) => {
-    console.log(userId, commentId)
     let isLikedQuery = await CommentLike.findOne({
         where: {
             'userId': userId,
             'commentId': commentId,
         }
     }).catch((err) => {
-        console.log(ERROR.query_error, err)
         return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.error_data_field)
     })
 
@@ -145,7 +140,6 @@ exports.likeComment = async (userId, commentId) => {
         userId: userId,
         commentId: commentId,
     }).catch((err) => {
-        console.log(ERROR.query_error, err)
         return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.error_data_field)
     })
 
@@ -164,7 +158,6 @@ exports.unLikeComment = async (userId, commentId) => {
             commentId: commentId,
         }
     }).catch((err) => {
-        console.log(ERROR.query_error, err)
         return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.error_data_field)
     })
 
@@ -185,7 +178,6 @@ exports.getLikeUserList = async (commentId) => {
             model: User,
         },
     }).catch((err) => {
-        console.log(ERROR.query_error, err)
         return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.error_data_field)
     })
 
@@ -205,7 +197,6 @@ exports.getLikeCommentList = async (userId) => {
             model: Comments,
         },
     }).catch((err) => {
-        console.log(ERROR.query_error, err)
         return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.error_data_field)
     })
 

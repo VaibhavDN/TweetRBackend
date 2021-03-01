@@ -2,6 +2,7 @@ const Relationships = require("../../models/Relationships")
 const { Op } = require('sequelize')
 const { ERROR } = require('../../errorConstants')
 const { FRIENDSTATUS } = require("./Constants")
+const utils = require('../../utils')
 
 let queryResult = {
     success: false,
@@ -32,7 +33,6 @@ exports.checkAlreadyFriends = async (currentUserId, friendUserId) => {
             ]
         }
     }).catch((err) => {
-        console.log(ERROR.query_error, err)
         queryResult = {
             success: false,
             data: ERROR.error_data_field
@@ -67,7 +67,6 @@ exports.createFriendRequest = async (currentUserId, friendUserId) => {
             actionUserId: currentUserId,
         },
     ]).catch((err) => {
-        console.log(ERROR.query_error, err)
         queryResult = {
             success: false,
             data: ERROR.error_data_field
@@ -113,7 +112,6 @@ exports.changeRequestStatus = async (currentUserId, friendUserId, status) => {
             status: FRIENDSTATUS.pending, // Status pending then only accept/decline
         }
     }).catch((err) => {
-        console.log(ERROR.query_error, err)
         queryResult = {
             success: false,
             data: ERROR.error_data_field

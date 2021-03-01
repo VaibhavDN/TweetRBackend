@@ -28,8 +28,6 @@ exports.isPhoneValid = (phone) => {
 
 
 const extractTweets = (tweet, name, loginid, userId) => {
-    //console.log('tweet', tweet)
-
     let data = {
         'id': tweet.id,
         'name': name,
@@ -56,9 +54,7 @@ const extractTweets = (tweet, name, loginid, userId) => {
 exports.reformatFriendTweetData = (friendsTweetsData, userId) => {
     let reformatedData = []
     for(let itr = 0; itr < friendsTweetsData.length; itr++) {
-        //console.log('friendsTweetsData', friendsTweetsData[itr])
         let data = friendsTweetsData[itr]
-        console.log("data", data)
         data.Tweets.forEach((item) => {
             reformatedData.push(extractTweets(item, data.name, data.loginid, userId))
         })
@@ -71,7 +67,6 @@ exports.reformatPublicTweetData = (publicTweetsData, userId) => {
 
     for(let itr = 0; itr < publicTweetsData.length; itr++) {
         let data = publicTweetsData[itr]
-        console.log("data", data)
 
         let obj = {
             'id': data.id,

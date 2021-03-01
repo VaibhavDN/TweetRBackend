@@ -22,7 +22,6 @@ exports.createNewUser = async (name, loginid, password) => {
         loginid: loginid,
         password: password,
     }).catch((err) => {
-        console.log(ERROR.query_error, err)
         queryResult = {
             success: false,
             data: ERROR.error_data_field
@@ -32,7 +31,7 @@ exports.createNewUser = async (name, loginid, password) => {
 
     queryResult = {
         success: true,
-        data: createQueryResponse.dataValues,
+        data: createQueryResponse,
     }
     return utils.jsonSafe(queryResult)
 }
@@ -47,7 +46,6 @@ exports.findIfUserExists = async (userId) => {
             id: userId,
         }
     }).catch((err) => {
-        console.log(ERROR.query_error, err)
         queryResult = {
             success: false,
             data: ERROR.error_data_field
@@ -57,7 +55,7 @@ exports.findIfUserExists = async (userId) => {
 
     queryResult = {
         success: true,
-        data: findQueryResponse.dataValues,
+        data: findQueryResponse,
     }
     return utils.jsonSafe(queryResult)
 }
@@ -72,7 +70,6 @@ exports.findUserByLoginId = async (loginId) => {
             loginid: loginId,
         }
     }).catch((err) => {
-        console.log(ERROR.query_error, err)
         queryResult = {
             success: false,
             data: ERROR.error_data_field
@@ -97,11 +94,11 @@ exports.findUserByLoginId = async (loginId) => {
 exports.getFriendsTweets = async (userId, pageSize, pageNo) => {
     let friendsTweetsQuery = await User.findAll({
         attributes: ['name', 'loginid'],
-        where: {
+        /*where: {
             id: {
                 [Op.ne]: userId,
             }
-        },
+        },*/
         include: [
             {
                 model: Tweets,
@@ -124,7 +121,6 @@ exports.getFriendsTweets = async (userId, pageSize, pageNo) => {
             },
         ],
     }).catch((err) => {
-        console.log(ERROR.query_error, err)
         queryResult = {
             success: false,
             data: ERROR.error_data_field
@@ -157,7 +153,6 @@ exports.getPublicTweets = async (userId, pageSize, pageNo) => {
         include: TweetLike,
         order: [['updatedAt', 'DESC']],
     }).catch((err) => {
-        console.log(ERROR.query_error, err)
         response = JSON.stringify({
             "success": false,
             "data": ERROR.error_data_field,
@@ -187,7 +182,6 @@ exports.updateUserName = async (newName, loginParam) => {
                 loginid: loginParam,
             },
         }).catch((err) => {
-            console.log(ERROR.query_error, err)
             response = JSON.stringify({
                 "success": false,
                 "data": ERROR.error_data_field,
@@ -217,7 +211,6 @@ exports.updateUserPassword = async (password, loginParam) => {
                 loginid: loginParam,
             },
         }).catch((err) => {
-            console.log(ERROR.query_error, err)
             response = JSON.stringify({
                 "success": false,
                 "data": ERROR.error_data_field,
@@ -265,7 +258,6 @@ exports.searchFriends = async (searchText, currentUserId) => {
             order: [['updatedAt', 'DESC']],
         },
     }).catch((err) => {
-        console.log(ERROR.query_error, err)
         response = JSON.stringify({
             "success": false,
             "data": ERROR.error_data_field,
@@ -303,7 +295,6 @@ exports.searchUnknowns = async (searchText, currentUserId) => {
             }
         },
     }).catch((err) => {
-        console.log(ERROR.query_error, err)
         response = JSON.stringify({
             "success": false,
             "data": ERROR.error_data_field,

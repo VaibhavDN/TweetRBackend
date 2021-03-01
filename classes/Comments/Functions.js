@@ -5,7 +5,6 @@
  * @param {Integer} userId 
  */
 exports.getCountAndSelfLike = (comments, userId) => {
-    console.log(comments)
     for (let index = 0; index < comments.length; index++) {
         let data = comments[index]
         let likeArrayLength = data.CommentLikes.length

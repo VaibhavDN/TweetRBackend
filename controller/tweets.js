@@ -14,9 +14,9 @@ const { isEmailValid, isPhoneValid, reformatFriendTweetData, reformatPublicTweet
  * @param {Object} next 
  */
 exports.addTweet = async (req, res, next) => {
-    console.log(req.body, req.baseUrl)
+    console.log(req.body, req.baseUrl, req.url)
 
-    let loginParam = req.body.loginid
+    let loginParam = req.body.loginId
     let tweetText = req.body.tweetText
 
     if (!loginParam || !tweetText) {
@@ -32,8 +32,6 @@ exports.addTweet = async (req, res, next) => {
     let userExistsQuery = await findUserByLoginId(loginParam)
     let userExistsQueryStatus = userExistsQuery.success
     let userExistsQueryData = userExistsQuery.data
-
-    console.log(JSON.stringify(userExistsQuery))
 
     if (userExistsQueryData == null || userExistsQueryStatus == false) {
         res.send(utils.sendResponse(false, {}, ERROR.user_doesnot_exist))
@@ -71,26 +69,20 @@ exports.getTweets = async (req, res, next) => {
 
     let reformatedData = reformatFriendTweetData(friendsTweetsData, userId)
 
-    //console.log(JSON.parse(JSON.stringify(friendsTweetsData)))
-
     if (reformatedData.length != 0) {
         res.send(utils.sendResponse(true, reformatedData, PLACEHOLDER.empty_string))
         return
     }
 
     let publicTweets = await getPublicTweets(userId, pageSize, pageNo)
-    let publicTweetsData = publicTweets.data
 
-    console.log("Public tweets", JSON.stringify(publicTweets))
-
-    reformatedData = reformatPublicTweetData(publicTweetsData, userId)
+    reformatedData = reformatPublicTweetData(publicTweets.data, userId)
 
     if (reformatedData == null) {
         res.send(utils.sendResponse(false, {}, ERROR.user_doesnot_exist))
         return
     }
 
-    //console.log("\n\nResponse", reformatedData)
     res.send(utils.sendResponse(true, reformatedData, PLACEHOLDER.empty_string))
 }
 
@@ -113,9 +105,8 @@ exports.updateTweet = async (req, res, next) => {
     }
 
     let updateTweetQuery = await updateExistingTweet(tweetId, userId, tweetText)
-    let updateTweetQueryData = updateTweetQuery.data
 
-    if (updateTweetQueryData[0] === QUERYFAILED) {
+    if (updateTweetQuery.data[0] === QUERYFAILED) {
         res.send(utils.sendResponse(false, {}, ERROR.tweet_doesnot_exist))
         return
     }
@@ -157,10 +148,8 @@ exports.isTweetLiked = async (req, res, next) => {
     let tweetId = req.body.tweetId
 
     let isLikedQuery = await isLiked(userId, tweetId)
-    let isLikedQueryData = isLikedQuery.data
-    console.log(isLikedQueryData)
 
-    res.send(utils.sendResponse(true, isLikedQueryData, PLACEHOLDER.empty_string))
+    res.send(utils.sendResponse(true, isLikedQuery.data, PLACEHOLDER.empty_string))
 }
 
 exports.likeExistingTweet = async (req, res, next) => {
@@ -176,10 +165,8 @@ exports.likeExistingTweet = async (req, res, next) => {
     }
 
     let likeTweetQuery = await likeTweet(userId, tweetId)
-    let likeTweetQueryData = likeTweetQuery.data
-    console.log(likeTweetQueryData)
 
-    res.send(utils.sendResponse(true, likeTweetQueryData, PLACEHOLDER.empty_string))
+    res.send(utils.sendResponse(true, likeTweetQuery.data, PLACEHOLDER.empty_string))
 }
 
 exports.unLikeExistingTweet = async (req, res, next) => {
@@ -195,10 +182,8 @@ exports.unLikeExistingTweet = async (req, res, next) => {
     }
 
     let unLikeTweetQuery = await unLikeTweet(userId, tweetId)
-    let unLikeTweetQueryData = unLikeTweetQuery.data
-    console.log(unLikeTweetQueryData)
 
-    res.send(utils.sendResponse(true, unLikeTweetQueryData, PLACEHOLDER.empty_string))
+    res.send(utils.sendResponse(true, unLikeTweetQuery.data, PLACEHOLDER.empty_string))
 }
 
 /**
@@ -213,14 +198,13 @@ exports.userLikeTweetList = async (req, res, next) => {
     let userId = req.body.userId
 
     let tweetList = await getLikeTweetList(userId)
-    let tweetListData = tweetList.data
 
     if (tweetList.success == false) {
         res.send(utils.sendResponse(false, {}, ERROR.error_data_field))
         return
     }
 
-    res.send(utils.sendResponse(true, tweetListData, PLACEHOLDER.empty_string))
+    res.send(utils.sendResponse(true, tweetList.data, PLACEHOLDER.empty_string))
 }
 
 /**
@@ -235,14 +219,13 @@ exports.tweetLikeUserList = async (req, res, next) => {
     let tweetId = req.body.tweetId
 
     let userList = await getLikeUserList(tweetId)
-    let userListData = userList.data
 
     if (userList.success == false) {
         res.send(utils.sendResponse(false, {}, ERROR.error_data_field))
         return
     }
 
-    res.send(utils.sendResponse(true, userListData, PLACEHOLDER.empty_string))
+    res.send(utils.sendResponse(true, userList.data, PLACEHOLDER.empty_string))
 }
 
 // utils.sendResponse(req,res,true, likeTweetQueryData, PLACEHOLDER.empty_string);

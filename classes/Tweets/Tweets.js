@@ -21,7 +21,6 @@ exports.findIfTweetExists = async (tweetId) => {
         }
     })
         .catch((err) => {
-            console.log(ERROR.query_error, err)
             queryResult = {
                 success: false,
                 data: ERROR.error_data_field
@@ -50,7 +49,6 @@ exports.addNewTweet = async (userId, name, loginid, tweetText) => {
         loginid: loginid,
         tweet: tweetText,
     }).catch((err) => {
-        console.log(ERROR.query_error, err)
         queryResult = {
             success: false,
             data: ERROR.error_data_field
@@ -82,7 +80,6 @@ exports.updateExistingTweet = async (tweetId, userId, tweetText) => {
             ]
         }
     }).catch((err) => {
-        console.log(ERROR.query_error, err)
         queryResult = {
             success: false,
             data: ERROR.error_data_field
@@ -107,7 +104,6 @@ exports.deleteExistingTweet = async (tweetId) => {
             id: tweetId,
         }
     }).catch((err) => {
-        console.log(ERROR.query_error, err)
         queryResult = {
             success: false,
             data: ERROR.error_data_field
@@ -123,14 +119,12 @@ exports.deleteExistingTweet = async (tweetId) => {
 }
 
 exports.isLiked = async (userId, tweetId) => {
-    console.log(userId, tweetId)
     let isLikedQuery = await TweetLike.findOne({
         where: {
             'userId': userId,
             'tweetId': tweetId,
         }
     }).catch((err) => {
-        console.log(ERROR.query_error, err)
         return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.error_data_field)
     })
 
@@ -146,7 +140,6 @@ exports.likeTweet = async (userId, tweetId) => {
         userId: userId,
         tweetId: tweetId,
     }).catch((err) => {
-        console.log(ERROR.query_error, err)
         return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.error_data_field)
     })
 
@@ -160,7 +153,6 @@ exports.unLikeTweet = async (userId, tweetId) => {
             tweetId: tweetId,
         }
     }).catch((err) => {
-        console.log(ERROR.query_error, err)
         return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.error_data_field)
     })
 
@@ -181,7 +173,6 @@ exports.getLikeUserList = async (tweetId) => {
             model: User,
         },
     }).catch((err) => {
-        console.log(ERROR.query_error, err)
         return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.error_data_field)
     })
 
@@ -201,7 +192,6 @@ exports.getLikeTweetList = async (userId) => {
             model: Tweets,
         },
     }).catch((err) => {
-        console.log(ERROR.query_error, err)
         return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.error_data_field)
     })
 

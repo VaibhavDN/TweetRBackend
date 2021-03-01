@@ -25,8 +25,6 @@ exports.friendRequest = async (req, res, next) => {
         let friendRequestExists = await checkAlreadyFriends(currentUserId, friendUserId)
         friendRequestExistsData = friendRequestExists.data
 
-        console.log(friendRequestExistsData)
-
         if (friendRequestExistsData != null) {
             res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.request_exists))
             return
@@ -40,11 +38,8 @@ exports.friendRequest = async (req, res, next) => {
     }
     else if (status == FRIENDSTATUS.accepted || status == FRIENDSTATUS.declined) {
         let changeFriendQuery = await changeRequestStatus(currentUserId, friendUserId, status)
-        changeFriendQueryData = changeFriendQuery.data
 
-        console.log(changeFriendQueryData)
-
-        if (changeFriendQueryData[0] == ERRORCODE.zero) {
+        if (changeFriendQuery.data[0] == ERRORCODE.zero) {
             res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.request_doesnot_exist))
             return
         }

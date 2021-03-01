@@ -45,14 +45,13 @@ exports.addUserComment = async(req, res, next) => {
 
     let addCommentQuery = await addComment(commentersId, userExistsQueryData.name, commentText, tweetExistsQueryData.id)
     let addCommentQueryStatus = addCommentQuery.success
-    let addCommentQueryData = addCommentQuery.data
 
-    if(addCommentQueryData == null || addCommentQueryStatus == false) {
+    if(addCommentQuery.data == null || addCommentQueryStatus == false) {
         res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.add_comment_failed))
         return
     }
 
-    res.send(utils.sendResponse(true, addCommentQueryData, PLACEHOLDER.empty_string))
+    res.send(utils.sendResponse(true, addCommentQuery.data, PLACEHOLDER.empty_string))
 }
 
 /**
@@ -75,19 +74,19 @@ exports.getUserComments = async (req, res, next) => {
     }
 
     let commentsQuery = await getComments(pageSize, pageNo, tweetId)
+    if(!commentsQuery.success){
+        res.send(utils.sendResponse(commentsQuery.success,commentsQuery.data,commentsQuery.err));
+    }
     let commentsQueryStatus = commentsQuery.success
-    let commentsQueryData = commentsQuery.data
-
     
-    commentsQueryData.Comments = getCountAndSelfLike(commentsQueryData.Comments, userId)
+    commentsQuery.data.Comments = getCountAndSelfLike(commentsQuery.data.Comments, userId)
 
     if (commentsQueryData == null || commentsQueryStatus.success == false) {
         res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.error_data_field))
         return
     }
 
-    console.log("\n\nResponse", commentsQueryData)
-    res.send(utils.sendResponse(true, commentsQueryData, PLACEHOLDER.empty_string))
+    res.send(utils.sendResponse(true, commentsQuery.data, PLACEHOLDER.empty_string))
 }
 
 /**
@@ -97,7 +96,7 @@ exports.getUserComments = async (req, res, next) => {
  * @param {Object} next 
  */
 exports.updateUserComment = async(req, res, next) => {
-    console.log(JSON.stringify(req.body))
+    console.log(req.body, req.baseUrl, req.url)
 
     let commentersId = req.body.commentersId
     let commentId = req.body.commentId
@@ -132,10 +131,8 @@ exports.isCommentLiked = async (req, res, next) => {
     let commentId = req.body.commentId
 
     let isLikedQuery = await isLiked(userId, commentId)
-    let isLikedQueryData = isLikedQuery.data
-    console.log(isLikedQueryData)
 
-    res.send(utils.sendResponse(true, isLikedQueryData, PLACEHOLDER.empty_string))
+    res.send(utils.sendResponse(true, isLikedQuery.data, PLACEHOLDER.empty_string))
 }
 
 /**
@@ -157,10 +154,8 @@ exports.likeExistingComment = async (req, res, next) => {
     }
 
     let likeCommentQuery = await likeComment(userId, commentId)
-    let likeCommentQueryData = likeCommentQuery.data
-    console.log(likeCommentQueryData)
 
-    res.send(utils.sendResponse(true, likeCommentQueryData, PLACEHOLDER.empty_string))
+    res.send(utils.sendResponse(true, likeCommentQuery.data, PLACEHOLDER.empty_string))
 }
 
 /**
@@ -182,10 +177,8 @@ exports.unLikeExistingComment = async (req, res, next) => {
     }
 
     let unLikeTweetQuery = await unLikeComment(userId, commentId)
-    let unLikeTweetQueryData = unLikeTweetQuery.data
-    console.log(unLikeTweetQueryData)
 
-    res.send(utils.sendResponse(true, unLikeTweetQueryData, PLACEHOLDER.empty_string))
+    res.send(utils.sendResponse(true, unLikeTweetQuery.data, PLACEHOLDER.empty_string))
 }
 
 /**
@@ -200,14 +193,13 @@ exports.userLikeCommentList = async (req, res, next) => {
     let userId = req.body.userId
 
     let tweetList = await getLikeCommentList(userId)
-    let tweetListData = tweetList.data
 
     if(tweetList.success == false) {
         res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.error_data_field))
         return
     }
 
-    res.send(utils.sendResponse(true, tweetListData, PLACEHOLDER.empty_string))
+    res.send(utils.sendResponse(true, tweetList.data, PLACEHOLDER.empty_string))
 }
 
 /**
@@ -222,12 +214,11 @@ exports.commentLikeUserList = async (req, res, next) => {
     let commentId = req.body.commentId
 
     let userList = await getLikeUserList(commentId)
-    let userListData = userList.data
 
     if(userList.success == false) {
         res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.error_data_field))
         return
     }
 
-    res.send(utils.sendResponse(true, userListData, PLACEHOLDER.empty_string))
+    res.send(utils.sendResponse(true, userList.data, PLACEHOLDER.empty_string))
 }

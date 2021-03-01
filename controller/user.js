@@ -1,4 +1,4 @@
-const { findUserByLoginId, searchFriends, updateUserPassword, searchUnknowns } = require('../classes/Users/Users')
+const { findUserByLoginId, searchFriends, updateUserPassword, searchUnknowns, createNewUser } = require('../classes/Users/Users')
 const { ERROR } = require('../errorConstants')
 const utils = require('../utils')
 const { isEmailValid, isPhoneValid } = require('../classes/Users/Functions')
@@ -12,7 +12,6 @@ const { SUCCESS } = require('../text')
  * @param {Object} next 
  */
 exports.verifyIfUserExists = async(req, res, next) => {
-    
     console.log(req.body, req.baseUrl)
 
     let loginParam = req.body.loginid || ""
@@ -30,8 +29,6 @@ exports.verifyIfUserExists = async(req, res, next) => {
     let findQueryResponse = await findUserByLoginId(loginParam)
     let responseData = findQueryResponse.data
 
-    console.log(JSON.stringify(responseData))
-
     if(responseData == null) {
         res.send(utils.sendResponse(false, {}, ERROR.user_doesnot_exist))
         return
@@ -42,7 +39,6 @@ exports.verifyIfUserExists = async(req, res, next) => {
         "name": responseData.name,
     }
 
-    console.log(data)
     res.send(utils.sendResponse(true, data, PLACEHOLDER.empty_string))
 }
 
@@ -70,8 +66,6 @@ exports.userLogin = async(req, res, next) => {
 
     let findQueryResponse = await findUserByLoginId(loginParam)
     let responseData = findQueryResponse.data
-
-    console.log(JSON.stringify(responseData))
 
     if(responseData == null) {
         res.send(utils.sendResponse(false, {}, ERROR.user_doesnot_exist))
@@ -115,8 +109,6 @@ exports.userSignup = async(req, res, next) => {
     let findQueryResponse = await findUserByLoginId(loginParam)
     let queryData = findQueryResponse.data
 
-    console.log(queryData)
-
     if(queryData != null) {
         res.send(utils.sendResponse(false, {}, ERROR.user_already_exists))
         return
@@ -129,8 +121,6 @@ exports.userSignup = async(req, res, next) => {
 
     let createQueryResponse = await createNewUser(name, loginParam, password)
     queryData = createQueryResponse.data
-
-    console.log(queryData)
 
     let data = {
         "loginid": queryData.loginid,
@@ -168,8 +158,6 @@ exports.updateUserProfile = async(req, res, next) => {
     let findQueryResponse = await findUserByLoginId(loginParam)
     let responseData = findQueryResponse.data
 
-    console.log(responseData)
-
     if(responseData == null) {
         res.send(utils.sendResponse(false, {}, ERROR.user_doesnot_exist))
         return
@@ -195,8 +183,6 @@ exports.updateUserProfile = async(req, res, next) => {
         updateQuery = await updateUserPassword(password, loginParam)
     }
 
-    console.log(updateQuery)
-
     res.send(utils.sendResponse(true, SUCCESS.profile_updated, PLACEHOLDER.empty_string))
 }
 
@@ -220,15 +206,30 @@ exports.userSearch = async (req, res, next) => {
     let searchFriendsQuery = await searchFriends(searchText, currentUserId)
     let queryResultData = searchFriendsQuery.data
 
-    console.log(searchFriendsQuery)
-
     if (queryResultData.length != 0) {
+        if(queryResultData[0].Relationships.length > 0) {
+            let status = queryResultData[0].Relationships[0].status
+            if(status == 0) {
+                queryResultData[0]['friendshipStatus'] = "pending"
+            }
+            else if(status == 1) {
+                queryResultData[0]['friendshipStatus'] = "accepted"
+            }
+            else if(status == 2) {
+                queryResultData[0]['friendshipStatus'] = "declined"
+            }
+            else {
+                queryResultData[0]['friendshipStatus'] = "database ded"
+            }
+        }
+        
         res.send(utils.sendResponse(true, queryResultData, PLACEHOLDER.empty_string))
         return
     }
 
     let searchUnknownQuery = await searchUnknowns(searchText, currentUserId)
     queryResultData = searchUnknownQuery.data
+    queryResultData[0]['friendshipStatus'] = "unknown"
 
     if (queryResultData.length == 0) {
         res.send(utils.sendResponse(false, {}, ERROR.user_doesnot_exist))
@@ -236,9 +237,8 @@ exports.userSearch = async (req, res, next) => {
     }
 
     for (let i = 0; i < queryResultData.length; i++) {
-        queryResultData[i].dataValues.Relationships = [];
+        queryResultData[i].Relationships = [];
     }
 
-    console.log(queryResultData)
     res.send(utils.sendResponse(true, queryResultData, PLACEHOLDER.empty_string))
 }
