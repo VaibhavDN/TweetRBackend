@@ -5,7 +5,7 @@ const { SUCCESS } = require('../text')
 const { ERROR } = require('../errorConstants')
 const utils = require('../utils')
 const { PLACEHOLDER, PAGESIZE, QUERYFAILED } = require('../classes/Tweets/Constants')
-const { isEmailValid, isPhoneValid } = require('../classes/Tweets/Functions')
+const { isEmailValid, isPhoneValid, reformatFriendTweetData, reformatPublicTweetData } = require('../classes/Tweets/Functions')
 
 /**
  * Add new tweet controller
@@ -66,88 +66,31 @@ exports.getTweets = async (req, res, next) => {
         return
     }
 
-    //* Construction zone starts here
-
     let friendsTweets = await getFriendsTweets(userId, pageSize, pageNo)
     let friendsTweetsData = friendsTweets.data
 
-    let reformatedData = []
-    let count = 0
+    let reformatedData = reformatFriendTweetData(friendsTweetsData, userId)
 
-    const extractTweets = (tweet, id, name, loginid) => {
-        console.log(tweet)
-        reformatedData.push({})
-        reformatedData[count]['id'] = id
-        reformatedData[count]['name'] = name
-        reformatedData[count]['loginid'] = loginid
-        reformatedData[count]['userId'] = tweet.dataValues.userId
-        reformatedData[count]['tweet'] = tweet.dataValues.tweet
-        reformatedData[count]['likeCount'] = tweet.Likes.length
-        reformatedData[count]['selfLike'] = false
-        for (let itr = 0; itr < tweet.Likes.length; itr++) {
-            if (tweet.Likes[itr].userId == userId) {
-                reformatedData[count]['selfLike'] = true
-                break
-            }
-        }
-        reformatedData[count]['like'] = tweet.Likes
-        reformatedData[count]['createdAt'] = tweet.dataValues.createdAt
-        reformatedData[count]['updatedAt'] = tweet.dataValues.updatedAt
-        count++
-    }
-
-    const reformatFriendTweetData = (data) => {
-        data.dataValues.Tweets.forEach((item) => {
-            extractTweets(item, data.dataValues.id, data.dataValues.name, data.dataValues.loginid)
-        })
-    }
-
-    friendsTweetsData.forEach(reformatFriendTweetData)
+    //console.log(JSON.parse(JSON.stringify(friendsTweetsData)))
 
     if (reformatedData.length != 0) {
         res.send(utils.sendResponse(true, reformatedData, PLACEHOLDER.empty_string))
         return
     }
 
-    //* Construction zone ends here
-
-
     let publicTweets = await getPublicTweets(userId, pageSize, pageNo)
     let publicTweetsData = publicTweets.data
 
-    console.log(JSON.stringify(publicTweets))
+    console.log("Public tweets", JSON.stringify(publicTweets))
 
-    count = 0
-
-    const reformatPublicTweetData = (data) => {
-        reformatedData.push({})
-        reformatedData[count]['id'] = data.id
-        reformatedData[count]['name'] = data.name
-        reformatedData[count]['loginid'] = data.loginid
-        reformatedData[count]['userId'] = data.userId
-        reformatedData[count]['tweet'] = data.tweet
-        reformatedData[count]['likeCount'] = data.Likes.length
-        reformatedData[count]['selfLike'] = false
-        for (let itr = 0; itr < data.Likes.length; itr++) {
-            if (data.Likes[itr].userId == userId) {
-                reformatedData[count]['selfLike'] = true
-                break
-            }
-        }
-        reformatedData[count]['like'] = data.Likes
-        reformatedData[count]['createdAt'] = data.createdAt
-        reformatedData[count]['updatedAt'] = data.updatedAt
-        count++
-    }
-
-    publicTweetsData.forEach(reformatPublicTweetData)
+    reformatedData = reformatPublicTweetData(publicTweetsData, userId)
 
     if (reformatedData == null) {
         res.send(utils.sendResponse(false, {}, ERROR.user_doesnot_exist))
         return
     }
 
-    console.log("\n\nResponse", reformatedData)
+    //console.log("\n\nResponse", reformatedData)
     res.send(utils.sendResponse(true, reformatedData, PLACEHOLDER.empty_string))
 }
 
@@ -272,7 +215,7 @@ exports.userLikeTweetList = async (req, res, next) => {
     let tweetList = await getLikeTweetList(userId)
     let tweetListData = tweetList.data
 
-    if(tweetList.success == false) {
+    if (tweetList.success == false) {
         res.send(utils.sendResponse(false, {}, ERROR.error_data_field))
         return
     }
@@ -294,7 +237,7 @@ exports.tweetLikeUserList = async (req, res, next) => {
     let userList = await getLikeUserList(tweetId)
     let userListData = userList.data
 
-    if(userList.success == false) {
+    if (userList.success == false) {
         res.send(utils.sendResponse(false, {}, ERROR.error_data_field))
         return
     }

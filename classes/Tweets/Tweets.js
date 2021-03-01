@@ -33,7 +33,7 @@ exports.findIfTweetExists = async (tweetId) => {
         success: true,
         data: findTweetQuery,
     }
-    return queryResult
+    return utils.jsonSafe(queryResult)
 }
 
 /**
@@ -62,7 +62,7 @@ exports.addNewTweet = async (userId, name, loginid, tweetText) => {
         success: true,
         data: addTweetQuery,
     }
-    return queryResult
+    return utils.jsonSafe(queryResult)
 }
 
 /**
@@ -94,7 +94,7 @@ exports.updateExistingTweet = async (tweetId, userId, tweetText) => {
         success: true,
         data: updateTweetQuery,
     }
-    return queryResult
+    return utils.jsonSafe(queryResult)
 }
 
 /**
@@ -119,7 +119,7 @@ exports.deleteExistingTweet = async (tweetId) => {
         success: true,
         data: removeTweetQuery,
     }
-    return queryResult
+    return utils.jsonSafe(queryResult)
 }
 
 exports.isLiked = async (userId, tweetId) => {
@@ -131,7 +131,7 @@ exports.isLiked = async (userId, tweetId) => {
         }
     }).catch((err) => {
         console.log(ERROR.query_error, err)
-        return utils.classResponse(false, {}, ERROR.error_data_field)
+        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.error_data_field)
     })
 
     if(isLikedQuery == null) {
@@ -147,7 +147,7 @@ exports.likeTweet = async (userId, tweetId) => {
         tweetId: tweetId,
     }).catch((err) => {
         console.log(ERROR.query_error, err)
-        return utils.classResponse(false, {}, ERROR.error_data_field)
+        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.error_data_field)
     })
 
     return utils.classResponse(true, likeTweetQuery, PLACEHOLDER.empty_string)
@@ -161,7 +161,7 @@ exports.unLikeTweet = async (userId, tweetId) => {
         }
     }).catch((err) => {
         console.log(ERROR.query_error, err)
-        return utils.classResponse(false, {}, ERROR.error_data_field)
+        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.error_data_field)
     })
 
     return utils.classResponse(true, unLikeTweetQuery, PLACEHOLDER.empty_string)
@@ -182,7 +182,7 @@ exports.getLikeUserList = async (tweetId) => {
         },
     }).catch((err) => {
         console.log(ERROR.query_error, err)
-        return utils.classResponse(false, {}, ERROR.error_data_field)
+        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.error_data_field)
     })
 
     return utils.classResponse(true, userListQuery, PLACEHOLDER.empty_string)
@@ -202,7 +202,7 @@ exports.getLikeTweetList = async (userId) => {
         },
     }).catch((err) => {
         console.log(ERROR.query_error, err)
-        return utils.classResponse(false, {}, ERROR.error_data_field)
+        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.error_data_field)
     })
 
     return utils.classResponse(true, tweetListQuery, PLACEHOLDER.empty_string)

@@ -1,9 +1,9 @@
-const { Sequelize, Op } = require('sequelize')
+const { Op } = require('sequelize')
 const { Comments, CommentLike } = require('../../models/Comments')
 const { Tweets } = require('../../models/Tweets')
 const { ERROR } = require('../../errorConstants')
 const utils = require('../../utils')
-const { PLACEHOLDER } = require('../Tweets/Constants')
+const { PLACEHOLDER } = require('./Constants')
 const User = require('../../models/Users')
 let queryResult = {
     success: false,
@@ -47,7 +47,7 @@ exports.getComments = async (pageSize, pageNo, tweetId) => {
         data: getCommentsQuery,
     }
     //queryResult = utils.classResponse(true, getCommentsQuery, )
-    return queryResult
+    return utils.jsonSafe(queryResult)
 }
 
 /**
@@ -76,7 +76,7 @@ exports.addComment = async (commentersId, name, commentText, tweetId) => {
         success: true,
         data: addCommentQuery,
     }
-    return queryResult
+    return utils.jsonSafe(queryResult)
 }
 
 /**
@@ -108,7 +108,7 @@ exports.updateComment = async (commentId, commentersId, commentText) => {
         success: true,
         data: updateCommentQuery,
     }
-    return queryResult
+    return utils.jsonSafe(queryResult)
 }
 
 /**
@@ -125,7 +125,7 @@ exports.isLiked = async (userId, commentId) => {
         }
     }).catch((err) => {
         console.log(ERROR.query_error, err)
-        return utils.classResponse(false, {}, ERROR.error_data_field)
+        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.error_data_field)
     })
 
     if(isLikedQuery == null) {
@@ -146,7 +146,7 @@ exports.likeComment = async (userId, commentId) => {
         commentId: commentId,
     }).catch((err) => {
         console.log(ERROR.query_error, err)
-        return utils.classResponse(false, {}, ERROR.error_data_field)
+        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.error_data_field)
     })
 
     return utils.classResponse(true, likeCommentQuery, PLACEHOLDER.empty_string)
@@ -165,7 +165,7 @@ exports.unLikeComment = async (userId, commentId) => {
         }
     }).catch((err) => {
         console.log(ERROR.query_error, err)
-        return utils.classResponse(false, {}, ERROR.error_data_field)
+        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.error_data_field)
     })
 
     return utils.classResponse(true, unLikeCommentQuery, PLACEHOLDER.empty_string)
@@ -186,7 +186,7 @@ exports.getLikeUserList = async (commentId) => {
         },
     }).catch((err) => {
         console.log(ERROR.query_error, err)
-        return utils.classResponse(false, {}, ERROR.error_data_field)
+        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.error_data_field)
     })
 
     return utils.classResponse(true, userListQuery, PLACEHOLDER.empty_string)
@@ -206,7 +206,7 @@ exports.getLikeCommentList = async (userId) => {
         },
     }).catch((err) => {
         console.log(ERROR.query_error, err)
-        return utils.classResponse(false, {}, ERROR.error_data_field)
+        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.error_data_field)
     })
 
     return utils.classResponse(true, commentListQuery, PLACEHOLDER.empty_string)

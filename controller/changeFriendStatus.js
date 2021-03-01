@@ -28,7 +28,7 @@ exports.friendRequest = async (req, res, next) => {
         console.log(friendRequestExistsData)
 
         if (friendRequestExistsData != null) {
-            res.send(utils.sendResponse(false, {}, ERROR.request_exists))
+            res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.request_exists))
             return
         }
 
@@ -45,7 +45,7 @@ exports.friendRequest = async (req, res, next) => {
         console.log(changeFriendQueryData)
 
         if (changeFriendQueryData[0] == ERRORCODE.zero) {
-            res.send(utils.sendResponse(false, {}, ERROR.request_doesnot_exist))
+            res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.request_doesnot_exist))
             return
         }
 
@@ -54,5 +54,5 @@ exports.friendRequest = async (req, res, next) => {
 
     }
 
-    res.send(utils.sendResponse(false, {}, ERROR.status_change_failed))
+    res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.status_change_failed))
 }

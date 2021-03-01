@@ -3,6 +3,7 @@ const User = require('../../models/Users')
 const { Tweets, TweetLike } = require('../../models/Tweets')
 const { Op } = require('sequelize')
 const { ERROR } = require('../../errorConstants')
+const utils = require('../../utils')
 
 let queryResult = {
     success: false,
@@ -33,7 +34,7 @@ exports.createNewUser = async (name, loginid, password) => {
         success: true,
         data: createQueryResponse.dataValues,
     }
-    return queryResult
+    return utils.jsonSafe(queryResult)
 }
 
 /**
@@ -58,7 +59,7 @@ exports.findIfUserExists = async (userId) => {
         success: true,
         data: findQueryResponse.dataValues,
     }
-    return queryResult
+    return utils.jsonSafe(queryResult)
 }
 
 /**
@@ -83,7 +84,7 @@ exports.findUserByLoginId = async (loginId) => {
         success: true,
         data: findQueryResponse,
     }
-    return queryResult
+    return utils.jsonSafe(queryResult)
 }
 
 /**
@@ -135,7 +136,7 @@ exports.getFriendsTweets = async (userId, pageSize, pageNo) => {
         success: true,
         data: friendsTweetsQuery,
     }
-    return queryResult
+    return utils.jsonSafe(queryResult)
 }
 
 /**
@@ -169,7 +170,7 @@ exports.getPublicTweets = async (userId, pageSize, pageNo) => {
         success: true,
         data: publicTweetsQuery,
     }
-    return queryResult
+    return utils.jsonSafe(queryResult)
 }
 
 /**
@@ -199,7 +200,7 @@ exports.updateUserName = async (newName, loginParam) => {
         success: true,
         data: updateQueryResponse,
     }
-    return queryResult
+    return utils.jsonSafe(queryResult)
 }
 
 /**
@@ -229,7 +230,7 @@ exports.updateUserPassword = async (password, loginParam) => {
         success: true,
         data: updateQueryResponse,
     }
-    return queryResult
+    return utils.jsonSafe(queryResult)
 }
 
 /**
@@ -277,7 +278,7 @@ exports.searchFriends = async (searchText, currentUserId) => {
         success: true,
         data: searchUserQuery,
     }
-    return queryResult
+    return utils.jsonSafe(queryResult)
 }
 
 /**
@@ -315,5 +316,5 @@ exports.searchUnknowns = async (searchText, currentUserId) => {
         success: true,
         data: searchUnknownUserQuery,
     }
-    return queryResult
+    return utils.jsonSafe(queryResult)
 }

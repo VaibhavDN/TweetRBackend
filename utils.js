@@ -5,7 +5,8 @@
  * @param {Object} data 
  * @param {String} err 
  */
-const classResponse = (success, data, err) => {
+exports.classResponse = (success, data, err) => {
+    data = JSON.parse(JSON.stringify(data))
     return {
         success: success,
         data: data,
@@ -20,7 +21,7 @@ const classResponse = (success, data, err) => {
  * @param {Object} data 
  * @param {String} err 
  */
-const sendResponse = (success, data, err) => {
+exports.sendResponse = (success, data, err) => {
     return {
         "success": success,
         "data": data,
@@ -28,17 +29,11 @@ const sendResponse = (success, data, err) => {
     }
 }
 
-module.exports = {
-    'classResponse': classResponse,
-    'sendResponse': sendResponse,
+/**
+ * Cleans up JSON data from sequelize
+ * removes dataValues, _previousValues etc
+ * @param {JSON} data 
+ */
+exports.jsonSafe = (data) => {
+    return JSON.parse(JSON.stringify(data))
 }
-
-/*
-const sendResponse = (req,res,success, data, err) => {
-    return res.json({
-        "success": success,
-        "data": data,
-        "err": err,
-    })
-}
-*/

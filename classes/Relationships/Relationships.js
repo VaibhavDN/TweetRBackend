@@ -44,7 +44,7 @@ exports.checkAlreadyFriends = async (currentUserId, friendUserId) => {
         success: true,
         data: findFriendQuery,
     }
-    return queryResult
+    return utils.jsonSafe(queryResult)
 }
 
 /**
@@ -79,7 +79,7 @@ exports.createFriendRequest = async (currentUserId, friendUserId) => {
         success: true,
         data: createFriendQuery,
     }
-    return queryResult
+    return utils.jsonSafe(queryResult)
 }
 
 /**
@@ -125,5 +125,5 @@ exports.changeRequestStatus = async (currentUserId, friendUserId, status) => {
         success: true,
         data: updateStatusQuery,
     }
-    return queryResult
+    return utils.jsonSafe(queryResult)
 }

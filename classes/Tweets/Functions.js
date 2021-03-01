@@ -1,3 +1,5 @@
+const { PLACEHOLDER, TWEETTYPE } = require("./Constants")
+
 /**
  * Checks if email is valid using regex
  * @param {String} email 
@@ -22,4 +24,78 @@ exports.isPhoneValid = (phone) => {
     }
 
     return true
+}
+
+
+const extractTweets = (tweet, name, loginid, userId) => {
+    //console.log('tweet', tweet)
+
+    let data = {
+        'id': tweet.id,
+        'name': name,
+        'loginid': loginid,
+        'userId': tweet.userId,
+        'tweet': tweet.tweet,
+        'likeCount': tweet.Likes.length,
+        'selfLike': false,
+        'createdAt': tweet.createdAt,
+        'updatedAt': tweet.updatedAt,
+        'type': TWEETTYPE.friend,
+    }
+
+    for (let itr = 0; itr < tweet.Likes.length; itr++) {
+        if (tweet.Likes[itr].userId == userId) {
+            data['selfLike'] = true
+            break
+        }
+    }
+
+    return data
+}
+
+exports.reformatFriendTweetData = (friendsTweetsData, userId) => {
+    let reformatedData = []
+    for(let itr = 0; itr < friendsTweetsData.length; itr++) {
+        //console.log('friendsTweetsData', friendsTweetsData[itr])
+        let data = friendsTweetsData[itr]
+        console.log("data", data)
+        data.Tweets.forEach((item) => {
+            reformatedData.push(extractTweets(item, data.name, data.loginid, userId))
+        })
+    }
+    return reformatedData
+}
+
+exports.reformatPublicTweetData = (publicTweetsData, userId) => {
+    let reformatedData = []
+
+    for(let itr = 0; itr < publicTweetsData.length; itr++) {
+        let data = publicTweetsData[itr]
+        console.log("data", data)
+
+        let obj = {
+            'id': data.id,
+            'name': data.name,
+            'loginid': data.loginid,
+            'userId': data.userId,
+            'tweet': data.tweet,
+            'likeCount': data.Likes.length,
+            'selfLike': false,
+            'like': data.Likes,
+            'createdAt': data.createdAt,
+            'updatedAt': data.updatedAt,
+            'type': TWEETTYPE.public,
+        }
+    
+        for (let itr = 0; itr < data.Likes.length; itr++) {
+            if (data.Likes[itr].userId == userId) {
+                obj['selfLike'] = true
+                break
+            }
+        }
+
+        reformatedData.push(obj)
+    }
+
+    return reformatedData
 }

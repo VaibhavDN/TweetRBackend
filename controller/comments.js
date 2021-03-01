@@ -5,6 +5,7 @@ const { SUCCESS } = require('../text')
 const { ERROR } = require('../errorConstants')
 const utils = require('../utils')
 const { PLACEHOLDER, PAGESIZE, QUERYFAILED } = require('../classes/Comments/Constants')
+const { getCountAndSelfLike } = require('../classes/Comments/Functions')
 
 /**
  * Add comment controller
@@ -20,7 +21,7 @@ exports.addUserComment = async(req, res, next) => {
     let commentText = req.body.commentText
 
     if(!commentersId || !commentText) {
-        res.send(utils.sendResponse(false, {}, ERROR.parameters_missing))
+        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.parameters_missing))
         return
     }
 
@@ -29,7 +30,7 @@ exports.addUserComment = async(req, res, next) => {
     let userExistsQueryData = userExistsQuery.data
 
     if(userExistsQueryData == null || userExistsQueryStatus == false) {
-        res.send(utils.sendResponse(false, {}, ERROR.user_doesnot_exist))
+        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.user_doesnot_exist))
         return
     }
 
@@ -38,7 +39,7 @@ exports.addUserComment = async(req, res, next) => {
     let tweetExistsQueryData = tweetExistsQuery.data
 
     if(tweetExistsQueryData == null || tweetExistsQueryStatus == false) {
-        res.send(utils.sendResponse(false, {}, ERROR.tweet_doesnot_exist))
+        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.tweet_doesnot_exist))
         return
     }
 
@@ -47,7 +48,7 @@ exports.addUserComment = async(req, res, next) => {
     let addCommentQueryData = addCommentQuery.data
 
     if(addCommentQueryData == null || addCommentQueryStatus == false) {
-        res.send(utils.sendResponse(false, {}, ERROR.add_comment_failed))
+        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.add_comment_failed))
         return
     }
 
@@ -77,24 +78,11 @@ exports.getUserComments = async (req, res, next) => {
     let commentsQueryStatus = commentsQuery.success
     let commentsQueryData = commentsQuery.data
 
-    const getCountAndSelfLike = (data, index) => {
-        let likeArrayLength = data.CommentLikes.length
-        commentsQueryData.Comments[index].dataValues['selfLike'] = false
-
-        for(let itr = 0; itr < likeArrayLength; itr++) {
-            if(data.CommentLikes[itr].userId == userId) {
-                commentsQueryData.Comments[index].dataValues['selfLike'] = true
-                break
-            }
-        }
-
-        commentsQueryData.Comments[index].dataValues['likeCount'] = likeArrayLength
-    }
-
-    commentsQueryData.Comments.forEach(getCountAndSelfLike)
+    
+    commentsQueryData.Comments = getCountAndSelfLike(commentsQueryData.Comments, userId)
 
     if (commentsQueryData == null || commentsQueryStatus.success == false) {
-        res.send(utils.sendResponse(false, {}, ERROR.error_data_field))
+        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.error_data_field))
         return
     }
 
@@ -116,7 +104,7 @@ exports.updateUserComment = async(req, res, next) => {
     let commentText = req.body.commentText
 
     if(!commentersId || !commentId || !commentText) {
-        res.send(utils.sendResponse(false, {}, ERROR.parameters_missing))
+        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.parameters_missing))
         return
     }
 
@@ -124,7 +112,7 @@ exports.updateUserComment = async(req, res, next) => {
     let queryData = updateCommentQuery.data
 
     if(queryData[0] === QUERYFAILED) {
-        res.send(utils.sendResponse(false, {}, ERROR.comment_doesnot_exist))
+        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.comment_doesnot_exist))
         return
     }
 
@@ -164,7 +152,7 @@ exports.likeExistingComment = async (req, res, next) => {
 
     let isLikedQuery = await isLiked(userId, commentId)
     if (isLikedQuery.data.like == true) {
-        res.send(utils.sendResponse(false, {}, ERROR.comment_already_liked))
+        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.comment_already_liked))
         return
     }
 
@@ -189,7 +177,7 @@ exports.unLikeExistingComment = async (req, res, next) => {
 
     let isLikedQuery = await isLiked(userId, commentId)
     if (isLikedQuery.data.like == false) {
-        res.send(utils.sendResponse(false, {}, ERROR.comment_already_unliked))
+        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.comment_already_unliked))
         return
     }
 
@@ -215,7 +203,7 @@ exports.userLikeCommentList = async (req, res, next) => {
     let tweetListData = tweetList.data
 
     if(tweetList.success == false) {
-        res.send(utils.sendResponse(false, {}, ERROR.error_data_field))
+        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.error_data_field))
         return
     }
 
@@ -237,7 +225,7 @@ exports.commentLikeUserList = async (req, res, next) => {
     let userListData = userList.data
 
     if(userList.success == false) {
-        res.send(utils.sendResponse(false, {}, ERROR.error_data_field))
+        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.error_data_field))
         return
     }
 
