@@ -1,13 +1,8 @@
 const Relationships = require("../../models/Relationships")
 const { Op } = require('sequelize')
 const { ERROR } = require('../../errorConstants')
-const { FRIENDSTATUS } = require("./Constants")
+const { FRIENDSTATUS, PLACEHOLDER } = require("./Constants")
 const utils = require('../../utils')
-
-let queryResult = {
-    success: false,
-    data: {},
-}
 
 /**
  * Checks if friend request already exists between two users
@@ -33,18 +28,10 @@ exports.checkAlreadyFriends = async (currentUserId, friendUserId) => {
             ]
         }
     }).catch((err) => {
-        queryResult = {
-            success: false,
-            data: ERROR.error_data_field
-        }
-        return queryResult
+        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.query_error)
     })
 
-    queryResult = {
-        success: true,
-        data: findFriendQuery,
-    }
-    return utils.jsonSafe(queryResult)
+    return utils.classResponse(true, findFriendQuery, PLACEHOLDER.empty_string)
 }
 
 /**
@@ -67,18 +54,10 @@ exports.createFriendRequest = async (currentUserId, friendUserId) => {
             actionUserId: currentUserId,
         },
     ]).catch((err) => {
-        queryResult = {
-            success: false,
-            data: ERROR.error_data_field
-        }
-        return queryResult
+        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.query_error)
     })
 
-    queryResult = {
-        success: true,
-        data: createFriendQuery,
-    }
-    return utils.jsonSafe(queryResult)
+    return utils.classResponse(true, createFriendQuery, PLACEHOLDER.empty_string)
 }
 
 /**
@@ -112,16 +91,23 @@ exports.changeRequestStatus = async (currentUserId, friendUserId, status) => {
             status: FRIENDSTATUS.pending, // Status pending then only accept/decline
         }
     }).catch((err) => {
-        queryResult = {
-            success: false,
-            data: ERROR.error_data_field
-        }
-        return queryResult
+        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.query_error)
     })
 
-    queryResult = {
-        success: true,
-        data: updateStatusQuery,
-    }
-    return utils.jsonSafe(queryResult)
+    return utils.classResponse(true, updateStatusQuery, PLACEHOLDER.empty_string)
+}
+
+exports.getFriendList = async (userId) => {
+    let queryResult = await Relationships.findAll({
+        where: {
+            [Op.or]: [
+                { userOneId: userId, },
+                { userTwoId: userId, }
+            ]
+        }
+    }).catch((err) => {
+        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.query_error)
+    })
+
+    return utils.classResponse(true, queryResult, PLACEHOLDER.empty_response)
 }

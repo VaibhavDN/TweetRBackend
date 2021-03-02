@@ -1,5 +1,5 @@
 const { Sequelize, DataTypes } = require('sequelize')
-const { Tweets, TweetLike } = require('./Tweets')
+const { Tweets } = require('./Tweets')
 const { Like } = require('./Like')
 
 const sequelize = new Sequelize('postgres://postgres:postgres@localhost/twitter')

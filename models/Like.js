@@ -19,7 +19,7 @@ const Like = sequelize.define('Likes', {
         type: DataTypes.BIGINT,
         allowNull: false,
     },
-    postType: { // 0 tweet 1 comment
+    postType: {
         type: DataTypes.BIGINT,
         allowNull: false,
     },

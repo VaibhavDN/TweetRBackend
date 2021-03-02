@@ -1,9 +1,10 @@
 const express = require('express')
 const bodyParser = require('body-parser')
 const usersModel = require('../models/Users')
-const { Tweets, TweetLike } = require('../models/Tweets')
+const { Tweets } = require('../models/Tweets')
 const { Comments } = require('../models/Comments')
 const Relationships = require('../models/Relationships')
+const { Like } = require('../models/Like')
 const routerGetUserDetail = express.Router()
 
 routerGetUserDetail.use(bodyParser.urlencoded({ extended: false }))
@@ -17,7 +18,7 @@ routerGetUserDetail.post('/', async (req, res, next) => {
         include: [
             {
                 model: Tweets,
-                include: [Comments, TweetLike],
+                include: [Comments, Like],
             },
             {
                 model: Relationships,

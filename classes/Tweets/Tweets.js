@@ -1,15 +1,10 @@
 const { Op } = require("sequelize")
-const { Tweets, TweetLike } = require("../../models/Tweets")
+const { Tweets } = require("../../models/Tweets")
 const { ERROR } = require('../../errorConstants')
 const utils = require("../../utils")
 const { PLACEHOLDER, POSTTYPE } = require("./Constants")
 const User = require("../../models/Users")
 const { Like } = require("../../models/Like")
-
-let queryResult = {
-    success: false,
-    data: {},
-}
 
 /**
  * Checks if the tweet exists in the Tweets model
@@ -20,20 +15,11 @@ exports.findIfTweetExists = async (tweetId) => {
         where: {
             id: tweetId,
         }
+    }).catch((err) => {
+        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.query_error)
     })
-        .catch((err) => {
-            queryResult = {
-                success: false,
-                data: ERROR.error_data_field
-            }
-            return queryResult
-        })
 
-    queryResult = {
-        success: true,
-        data: findTweetQuery,
-    }
-    return utils.jsonSafe(queryResult)
+    return utils.classResponse(true, findTweetQuery, PLACEHOLDER.empty_string)
 }
 
 /**
@@ -50,18 +36,10 @@ exports.addNewTweet = async (userId, name, loginid, tweetText) => {
         loginid: loginid,
         tweet: tweetText,
     }).catch((err) => {
-        queryResult = {
-            success: false,
-            data: ERROR.error_data_field
-        }
-        return queryResult
+        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.query_error)
     })
 
-    queryResult = {
-        success: true,
-        data: addTweetQuery,
-    }
-    return utils.jsonSafe(queryResult)
+    return utils.classResponse(true, addTweetQuery, PLACEHOLDER.empty_string)
 }
 
 /**
@@ -81,18 +59,10 @@ exports.updateExistingTweet = async (tweetId, userId, tweetText) => {
             ]
         }
     }).catch((err) => {
-        queryResult = {
-            success: false,
-            data: ERROR.error_data_field
-        }
-        return queryResult
+        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.query_error)
     })
 
-    queryResult = {
-        success: true,
-        data: updateTweetQuery,
-    }
-    return utils.jsonSafe(queryResult)
+    return utils.classResponse(true, updateTweetQuery, PLACEHOLDER.empty_string)
 }
 
 /**
@@ -105,18 +75,10 @@ exports.deleteExistingTweet = async (tweetId) => {
             id: tweetId,
         }
     }).catch((err) => {
-        queryResult = {
-            success: false,
-            data: ERROR.error_data_field
-        }
-        return queryResult
+        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.query_error)
     })
 
-    queryResult = {
-        success: true,
-        data: removeTweetQuery,
-    }
-    return utils.jsonSafe(queryResult)
+    return utils.classResponse(true, removeTweetQuery, PLACEHOLDER.empty_string)
 }
 
 exports.isLiked = async (userId, postId) => {

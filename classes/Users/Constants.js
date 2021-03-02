@@ -1,8 +1,9 @@
-const PLACEHOLDER = {
+exports.PLACEHOLDER = {
     empty_string: "",
     empty_response: {},
 }
 
-module.exports = {
-    'PLACEHOLDER': PLACEHOLDER,
+exports.POSTTYPE = {
+    'tweet': 0,
+    'comment': 1,
 }

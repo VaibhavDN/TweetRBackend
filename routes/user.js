@@ -1,12 +1,10 @@
-const { userLogin, userSignup, verifyIfUserExists, updateUserProfile, userSearch } = require('../controller/user')
-
 const express = require('express')
 const router = express.Router()
 
-router.use('/login', userLogin)
-router.use('/signup', userSignup)
-router.use('/verify', verifyIfUserExists)
-router.use('/updateprofile', updateUserProfile)
-router.use('/searchusers', userSearch)
+router.use('/login', require('../controller/user').userLogin)
+router.use('/signup', require('../controller/user').userSignup)
+router.use('/verify', require('../controller/user').verifyIfUserExists)
+router.use('/updateprofile', require('../controller/user').updateUserProfile)
+router.use('/searchusers', require('../controller/user').userSearch)
 
 module.exports = router

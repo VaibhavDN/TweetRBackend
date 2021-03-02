@@ -1,15 +1,11 @@
 const { Op } = require('sequelize')
-const { Comments, CommentLike } = require('../../models/Comments')
+const { Comments } = require('../../models/Comments')
 const { Tweets } = require('../../models/Tweets')
 const { ERROR } = require('../../errorConstants')
 const utils = require('../../utils')
 const { PLACEHOLDER, POSTTYPE } = require('./Constants')
 const User = require('../../models/Users')
 const { Like } = require('../../models/Like')
-let queryResult = {
-    success: false,
-    data: {},
-}
 
 /**
  * Performs database call to get comments for a particular tweet
@@ -33,25 +29,16 @@ exports.getComments = async (pageSize, pageNo, tweetId) => {
             },
             limit: pageSize,
             offset: ((pageNo - 1) * pageSize),
-            order: [['updatedAt', 'ASC']],
+            order: [['updatedAt', 'DESC']],
         },
         where: {
             id: tweetId,
         }
     }).catch((err) => {
-        queryResult = {
-            success: false,
-            data: ERROR.error_data_field
-        }
-        return queryResult
+        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.query_error)
     })
 
-    queryResult = {
-        success: true,
-        data: getCommentsQuery,
-    }
-    //console.log(queryResult)
-    return utils.jsonSafe(queryResult)
+    return utils.classResponse(true, getCommentsQuery, PLACEHOLDER.empty_string)
 }
 
 /**
@@ -68,18 +55,10 @@ exports.addComment = async (commentersId, name, commentText, tweetId) => {
         comment: commentText,
         postId: tweetId,
     }).catch((err) => {
-        queryResult = {
-            success: false,
-            data: ERROR.error_data_field,
-        }
-        return queryResult
+        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.query_error)
     })
 
-    queryResult = {
-        success: true,
-        data: addCommentQuery,
-    }
-    return utils.jsonSafe(queryResult)
+    return utils.classResponse(true, addCommentQuery, PLACEHOLDER.empty_string)
 }
 
 /**
@@ -99,18 +78,10 @@ exports.updateComment = async (commentId, commentersId, commentText) => {
             ]
         }
     }).catch((err) => {
-        queryResult = {
-            success: false,
-            data: ERROR.error_data_field,
-        }
-        return queryResult
+        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.query_error)
     })
 
-    queryResult = {
-        success: true,
-        data: updateCommentQuery,
-    }
-    return utils.jsonSafe(queryResult)
+    return utils.classResponse(true, updateCommentQuery, PLACEHOLDER.empty_string)
 }
 
 /**

@@ -5,7 +5,8 @@ const { SUCCESS } = require('../text')
 const { ERROR } = require('../errorConstants')
 const utils = require('../utils')
 const { PLACEHOLDER, PAGESIZE, QUERYFAILED } = require('../classes/Tweets/Constants')
-const { isEmailValid, isPhoneValid, reformatFriendTweetData, reformatPublicTweetData } = require('../classes/Tweets/Functions')
+const { isEmailValid, isPhoneValid, reformatFriendTweetData, reformatPublicTweetData, getFriendsArray } = require('../classes/Tweets/Functions')
+const { getFriendList } = require('../classes/Relationships/Relationships')
 
 /**
  * Add new tweet controller
@@ -65,7 +66,6 @@ exports.getTweets = async (req, res, next) => {
     }
 
     let friendsTweets = await getFriendsTweets(userId, pageSize, pageNo)
-
     let reformatedData = reformatFriendTweetData(friendsTweets.data, userId)
 
     if (reformatedData.length != 0) {
@@ -73,8 +73,10 @@ exports.getTweets = async (req, res, next) => {
         return
     }
 
-    let publicTweets = await getPublicTweets(userId, pageSize, pageNo)
+    let friendListQuery = await getFriendList(userId)
+    let friendList = getFriendsArray(friendListQuery.data)
 
+    let publicTweets = await getPublicTweets(userId, pageSize, pageNo, friendList)
     reformatedData = reformatPublicTweetData(publicTweets.data, userId)
 
     if (reformatedData == null) {

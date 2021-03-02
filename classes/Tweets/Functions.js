@@ -6,7 +6,7 @@ const { TWEETTYPE, INITIALCOUNT, LIKETYPES } = require("./Constants")
  */
 exports.isEmailValid = (email) => {
     let regex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
-    if(regex.test(email) === false && email != null) {
+    if (regex.test(email) === false && email != null) {
         return false
     }
 
@@ -19,7 +19,7 @@ exports.isEmailValid = (email) => {
  */
 exports.isPhoneValid = (phone) => {
     let regex = /^[6-9]\d{9}$/
-    if(regex.test(phone) === false && phone != null) {
+    if (regex.test(phone) === false && phone != null) {
         return false
     }
 
@@ -35,8 +35,8 @@ const countLikeType = (likeArray) => {
         [likeTypeObjKeys[3]]: INITIALCOUNT,
     }
 
-    for(let itr = 0; itr < likeArray.length; itr++) {
-        switch(likeArray[itr].likeType) {
+    for (let itr = 0; itr < likeArray.length; itr++) {
+        switch (likeArray[itr].likeType) {
             case '0':
                 likeCount[likeTypeObjKeys[0]] += 1
                 break
@@ -89,7 +89,7 @@ const extractTweets = (tweet, name, loginid, userId) => {
 
 exports.reformatFriendTweetData = (friendsTweetsData, userId) => {
     let reformatedData = []
-    for(let itr = 0; itr < friendsTweetsData.length; itr++) {
+    for (let itr = 0; itr < friendsTweetsData.length; itr++) {
         let data = friendsTweetsData[itr]
         data.Tweets.forEach((item) => {
             reformatedData.push(extractTweets(item, data.name, data.loginid, userId))
@@ -101,7 +101,7 @@ exports.reformatFriendTweetData = (friendsTweetsData, userId) => {
 exports.reformatPublicTweetData = (publicTweetsData, userId) => {
     let reformatedData = []
 
-    for(let itr = 0; itr < publicTweetsData.length; itr++) {
+    for (let itr = 0; itr < publicTweetsData.length; itr++) {
         let data = publicTweetsData[itr]
 
         let likeCountObj = countLikeType(data.Likes)
@@ -121,7 +121,7 @@ exports.reformatPublicTweetData = (publicTweetsData, userId) => {
             'type': TWEETTYPE.public,
             'likeCountObj': likeCountObj,
         }
-    
+
         for (let itr = 0; itr < data.Likes.length; itr++) {
             if (data.Likes[itr].userId == userId) {
                 obj['selfLike'] = true
@@ -134,4 +134,26 @@ exports.reformatPublicTweetData = (publicTweetsData, userId) => {
     }
 
     return reformatedData
+}
+
+/**
+ * Extracts array of friend's userId from the find all friends query result.
+ * @param {Array of Objects} friendListData 
+ */
+exports.getFriendsArray = (friendListData) => {
+    let friendList = []
+    let friendSet = new Set()
+    for (let itr = 0; itr < friendListData.length; itr++) {
+        let userOneId = friendListData[itr].userOneId
+        let userTwoId = friendListData[itr].userTwoId
+        if (userOneId != userId) {
+            friendSet.add(userOneId)
+        }
+        else if (userTwoId != userId) {
+            friendSet.add(userTwoId)
+        }
+    }
+
+    friendList = [...friendSet]
+    return friendList
 }

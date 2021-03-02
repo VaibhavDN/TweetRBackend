@@ -1,16 +1,11 @@
 const Relationships = require('../../models/Relationships')
 const User = require('../../models/Users')
-const { Tweets, TweetLike } = require('../../models/Tweets')
+const { Tweets } = require('../../models/Tweets')
 const { Op } = require('sequelize')
 const { ERROR } = require('../../errorConstants')
 const utils = require('../../utils')
 const { Like } = require('../../models/Like')
-const { POSTTYPE } = require('../Tweets/Constants')
-
-let queryResult = {
-    success: false,
-    data: {},
-}
+const { POSTTYPE, PLACEHOLDER } = require('../Users/Constants')
 
 /**
  * Creates new user in the User model
@@ -24,18 +19,10 @@ exports.createNewUser = async (name, loginid, password) => {
         loginid: loginid,
         password: password,
     }).catch((err) => {
-        queryResult = {
-            success: false,
-            data: ERROR.error_data_field
-        }
-        return queryResult
+        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.query_error)
     })
 
-    queryResult = {
-        success: true,
-        data: createQueryResponse,
-    }
-    return utils.jsonSafe(queryResult)
+    return utils.classResponse(true, createQueryResponse, PLACEHOLDER.empty_string)
 }
 
 /**
@@ -48,18 +35,10 @@ exports.findIfUserExists = async (userId) => {
             id: userId,
         }
     }).catch((err) => {
-        queryResult = {
-            success: false,
-            data: ERROR.error_data_field
-        }
-        return queryResult
+        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.query_error)
     })
 
-    queryResult = {
-        success: true,
-        data: findQueryResponse,
-    }
-    return utils.jsonSafe(queryResult)
+    return utils.classResponse(true, findQueryResponse, PLACEHOLDER.empty_string)
 }
 
 /**
@@ -72,18 +51,10 @@ exports.findUserByLoginId = async (loginId) => {
             loginid: loginId,
         }
     }).catch((err) => {
-        queryResult = {
-            success: false,
-            data: ERROR.error_data_field
-        }
-        return queryResult
+        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.query_error)
     })
 
-    queryResult = {
-        success: true,
-        data: findQueryResponse,
-    }
-    return utils.jsonSafe(queryResult)
+    return utils.classResponse(true, findQueryResponse, PLACEHOLDER.empty_string)
 }
 
 /**
@@ -96,11 +67,6 @@ exports.findUserByLoginId = async (loginId) => {
 exports.getFriendsTweets = async (userId, pageSize, pageNo) => {
     let friendsTweetsQuery = await User.findAll({
         attributes: ['name', 'loginid'],
-        /*where: {
-            id: {
-                [Op.ne]: userId,
-            }
-        },*/
         include: [
             {
                 model: Tweets,
@@ -112,6 +78,7 @@ exports.getFriendsTweets = async (userId, pageSize, pageNo) => {
                     where: {
                         "postType": POSTTYPE.tweet,
                     },
+                    required: false,
                     order: [['updatedAt', 'DESC']],
                 }
             },
@@ -120,62 +87,49 @@ exports.getFriendsTweets = async (userId, pageSize, pageNo) => {
                 where: {
                     [Op.or]: [
                         { userOneId: userId },
-                        { userTwoId: userId }, //Todo: Remove
+                        { userTwoId: userId },
                     ]
                 }
             },
         ],
     }).catch((err) => {
-        queryResult = {
-            success: false,
-            data: ERROR.error_data_field
-        }
-        return queryResult
+        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.query_error)
     })
 
-    queryResult = {
-        success: true,
-        data: friendsTweetsQuery,
-    }
-    return utils.jsonSafe(queryResult)
+    return utils.classResponse(true, friendsTweetsQuery, PLACEHOLDER.empty_string)
 }
 
 /**
- * Fetches all the tweets by date in DESC order
+ * Fetches tweets from users who are not friends by date in DESC order
  * @param {Integer} userId 
  * @param {Integer} pageSize 
  * @param {Integer} pageNo 
+ * @param {Array} friendList
  */
-exports.getPublicTweets = async (userId, pageSize, pageNo) => {
+exports.getPublicTweets = async (userId, pageSize, pageNo, friendList) => {
     let publicTweetsQuery = await Tweets.findAll({
         limit: pageSize,
         offset: ((pageNo - 1) * pageSize),
         where: {
             userId: {
-                [Op.ne]: userId,
+                [Op.notIn]: friendList
             }
         },
-        include: {
-            model: Like,
-            where: {
-                "postType": POSTTYPE.tweet,
+        include: [
+            {
+                model: Like,
+                where: {
+                    postType: POSTTYPE.tweet,
+                },
+                required: false,
             },
-        },
+        ],
         order: [['updatedAt', 'DESC']],
     }).catch((err) => {
-        response = JSON.stringify({
-            "success": false,
-            "data": ERROR.error_data_field,
-        })
-        res.send(response)
-        return
+        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.query_error)
     })
 
-    queryResult = {
-        success: true,
-        data: publicTweetsQuery,
-    }
-    return utils.jsonSafe(queryResult)
+    return utils.classResponse(true, publicTweetsQuery, PLACEHOLDER.empty_string)
 }
 
 /**
@@ -192,19 +146,10 @@ exports.updateUserName = async (newName, loginParam) => {
                 loginid: loginParam,
             },
         }).catch((err) => {
-            response = JSON.stringify({
-                "success": false,
-                "data": ERROR.error_data_field,
-            })
-            res.send(response)
-            return
+            return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.query_error)
         })
 
-    queryResult = {
-        success: true,
-        data: updateQueryResponse,
-    }
-    return utils.jsonSafe(queryResult)
+    return utils.classResponse(true, updateQueryResponse, PLACEHOLDER.empty_string)
 }
 
 /**
@@ -221,19 +166,10 @@ exports.updateUserPassword = async (password, loginParam) => {
                 loginid: loginParam,
             },
         }).catch((err) => {
-            response = JSON.stringify({
-                "success": false,
-                "data": ERROR.error_data_field,
-            })
-            res.send(response)
-            return
+            return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.query_error)
         })
 
-    queryResult = {
-        success: true,
-        data: updateQueryResponse,
-    }
-    return utils.jsonSafe(queryResult)
+    return utils.classResponse(true, updateQueryResponse, PLACEHOLDER.empty_string)
 }
 
 /**
@@ -268,19 +204,10 @@ exports.searchFriends = async (searchText, currentUserId) => {
             order: [['updatedAt', 'DESC']],
         },
     }).catch((err) => {
-        response = JSON.stringify({
-            "success": false,
-            "data": ERROR.error_data_field,
-        })
-        res.send(response)
-        return
+        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.query_error)
     })
 
-    queryResult = {
-        success: true,
-        data: searchUserQuery,
-    }
-    return utils.jsonSafe(queryResult)
+    return utils.classResponse(true, searchUserQuery, PLACEHOLDER.empty_string)
 }
 
 /**
@@ -305,17 +232,8 @@ exports.searchUnknowns = async (searchText, currentUserId) => {
             }
         },
     }).catch((err) => {
-        response = JSON.stringify({
-            "success": false,
-            "data": ERROR.error_data_field,
-        })
-        res.send(response)
-        return
+        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.query_error)
     })
 
-    queryResult = {
-        success: true,
-        data: searchUnknownUserQuery,
-    }
-    return utils.jsonSafe(queryResult)
+    return utils.classResponse(true, searchUnknownUserQuery, PLACEHOLDER.empty_string)
 }
