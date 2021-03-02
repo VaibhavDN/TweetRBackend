@@ -25,30 +25,6 @@ const Comments = sequelize.define('Comments', {
 
 Comments.sync()
 
-const CommentLike = sequelize.define('CommentLikes', {
-    userId: {
-        type: DataTypes.BIGINT,
-        allowNull: false,
-    },
-    commentId: {
-        type: DataTypes.BIGINT,
-        allowNull: false,
-    }
-}, {
-    freezeTableName: true,
-})
-
-Comments.hasMany(CommentLike, {
-    foreignKey: 'commentId',
-    onDelete: 'cascade',
-})
-CommentLike.belongsTo(Comments, {
-    foreignKey: 'commentId',
-})
-
-CommentLike.sync()
-
 module.exports = {
     'Comments': Comments,
-    'CommentLike': CommentLike
 }

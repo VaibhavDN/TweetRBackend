@@ -2,11 +2,6 @@ const { addUserComment, getUserComments, updateUserComment, isCommentLiked, like
 const express = require('express')
 const router = express.Router()
 
-//! Body Parser is required in this file
-const bodyParser = require('body-parser')
-router.use(bodyParser.urlencoded({extended: false}))
-router.use(bodyParser.json())
-
 router.post('/addcomment', addUserComment)
 router.get('/getcomments/:userId/:postId/:pageNo', getUserComments)
 router.post('/updatecomment', updateUserComment)

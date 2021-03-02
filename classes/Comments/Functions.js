@@ -1,3 +1,47 @@
+const { INITIALCOUNT, LIKETYPES } = require("./Constants")
+
+const countLikeType = (likeArray, userId) => {
+    let likeTypeObjKeys = Object.keys(LIKETYPES)
+    let likeCount = {
+        [likeTypeObjKeys[0]]: INITIALCOUNT,
+        [likeTypeObjKeys[1]]: INITIALCOUNT,
+        [likeTypeObjKeys[2]]: INITIALCOUNT,
+        [likeTypeObjKeys[3]]: INITIALCOUNT,
+    }
+
+    let selfLike = false
+    let myLikeType = -1
+
+    for (let itr = 0; itr < likeArray.length; itr++) {
+        switch (likeArray[itr].likeType) {
+            case '0':
+                likeCount[likeTypeObjKeys[0]] += 1
+                break
+            case '1':
+                likeCount[likeTypeObjKeys[1]] += 1
+                break
+            case '2':
+                likeCount[likeTypeObjKeys[2]] += 1
+                break
+            case '3':
+                likeCount[likeTypeObjKeys[3]] += 1
+                break
+        }
+
+        console.log("likeArray", likeArray[itr])
+        if (likeArray[itr].userId == userId) {
+            selfLike = true
+            myLikeType = likeArray[itr].likeType
+        }
+    }
+
+    return {
+        'likeCount': likeCount,
+        'selfLike': selfLike,
+        'myLikeType': myLikeType,
+    }
+}
+
 /**
  * Sets the like count and selfLike status
  * Self like: Is the comment liked by the user who is currently viewing
@@ -5,18 +49,15 @@
  * @param {Integer} userId 
  */
 exports.getCountAndSelfLike = (comments, userId) => {
+
     for (let index = 0; index < comments.length; index++) {
         let data = comments[index]
-        let likeArrayLength = data.CommentLikes.length
-        comments[index]['selfLike'] = false
+        let _countLikeType = countLikeType(data.Likes, userId)
+        let likeArrayLength = data.Likes.length
 
-        for (let itr = 0; itr < likeArrayLength; itr++) {
-            if (data.CommentLikes[itr].userId == userId) {
-                comments[index]['selfLike'] = true
-                break
-            }
-        }
-
+        comments[index]['likeCountObj'] = _countLikeType.likeCount
+        comments[index]['selfLike'] = _countLikeType.selfLike
+        comments[index]['myLikeType'] = _countLikeType.myLikeType
         comments[index]['likeCount'] = likeArrayLength
     }
 

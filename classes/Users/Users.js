@@ -4,6 +4,8 @@ const { Tweets, TweetLike } = require('../../models/Tweets')
 const { Op } = require('sequelize')
 const { ERROR } = require('../../errorConstants')
 const utils = require('../../utils')
+const { Like } = require('../../models/Like')
+const { POSTTYPE } = require('../Tweets/Constants')
 
 let queryResult = {
     success: false,
@@ -106,7 +108,10 @@ exports.getFriendsTweets = async (userId, pageSize, pageNo) => {
                 offset: ((pageNo - 1) * pageSize),
                 order: [['updatedAt', 'DESC']],
                 include: {
-                    model: TweetLike,
+                    model: Like,
+                    where: {
+                        "postType": POSTTYPE.tweet,
+                    },
                     order: [['updatedAt', 'DESC']],
                 }
             },
@@ -150,7 +155,12 @@ exports.getPublicTweets = async (userId, pageSize, pageNo) => {
                 [Op.ne]: userId,
             }
         },
-        include: TweetLike,
+        include: {
+            model: Like,
+            where: {
+                "postType": POSTTYPE.tweet,
+            },
+        },
         order: [['updatedAt', 'DESC']],
     }).catch((err) => {
         response = JSON.stringify({

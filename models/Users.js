@@ -1,6 +1,6 @@
 const { Sequelize, DataTypes } = require('sequelize')
-const { CommentLike } = require('./Comments')
 const { Tweets, TweetLike } = require('./Tweets')
+const { Like } = require('./Like')
 
 const sequelize = new Sequelize('postgres://postgres:postgres@localhost/twitter')
 
@@ -31,25 +31,15 @@ Tweets.belongsTo(User, {
     foreignKey: 'userId'
 })
 
-User.hasMany(TweetLike, {
+User.hasMany(Like, {
     foreignKey: 'userId',
     onDelete: 'cascade',
 })
 
-TweetLike.belongsTo(User, {
-    foreignKey: 'userId'
-})
-
-User.hasMany(CommentLike, {
-    foreignKey: 'userId',
-    onDelete: 'cascade',
-})
-
-CommentLike.belongsTo(User, {
+Like.belongsTo(User, {
     foreignKey: 'userId'
 })
 
 User.sync()
-TweetLike.sync()
 
 module.exports = User

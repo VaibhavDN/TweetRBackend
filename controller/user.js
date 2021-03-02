@@ -1,4 +1,4 @@
-const { findUserByLoginId, searchFriends, updateUserPassword, searchUnknowns, createNewUser } = require('../classes/Users/Users')
+const { findUserByLoginId, searchFriends, updateUserPassword, searchUnknowns, createNewUser, updateUserName } = require('../classes/Users/Users')
 const { ERROR } = require('../errorConstants')
 const utils = require('../utils')
 const { isEmailValid, isPhoneValid } = require('../classes/Users/Functions')

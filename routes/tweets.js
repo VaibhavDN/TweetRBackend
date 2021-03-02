@@ -2,10 +2,6 @@ const { addTweet, getTweets, updateTweet, deleteTweet, isTweetLiked, likeExistin
 const express = require('express')
 const router = express.Router()
 
-const bodyParser = require('body-parser')
-router.use(bodyParser.urlencoded({ extended: false }))
-router.use(bodyParser.json())
-
 router.post('/addtweet', addTweet)
 router.use('/deletetweet', deleteTweet)
 router.use('/gettweets/:userId/:pageNo', getTweets)

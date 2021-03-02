@@ -65,9 +65,8 @@ exports.getTweets = async (req, res, next) => {
     }
 
     let friendsTweets = await getFriendsTweets(userId, pageSize, pageNo)
-    let friendsTweetsData = friendsTweets.data
 
-    let reformatedData = reformatFriendTweetData(friendsTweetsData, userId)
+    let reformatedData = reformatFriendTweetData(friendsTweets.data, userId)
 
     if (reformatedData.length != 0) {
         res.send(utils.sendResponse(true, reformatedData, PLACEHOLDER.empty_string))
@@ -145,9 +144,9 @@ exports.isTweetLiked = async (req, res, next) => {
     console.log(req.body, req.baseUrl)
 
     let userId = req.body.userId
-    let tweetId = req.body.tweetId
+    let postId = req.body.postId
 
-    let isLikedQuery = await isLiked(userId, tweetId)
+    let isLikedQuery = await isLiked(userId, postId)
 
     res.send(utils.sendResponse(true, isLikedQuery.data, PLACEHOLDER.empty_string))
 }
@@ -156,15 +155,16 @@ exports.likeExistingTweet = async (req, res, next) => {
     console.log(req.body, req.baseUrl)
 
     let userId = req.body.userId
-    let tweetId = req.body.tweetId
+    let postId = req.body.postId
+    let likeType = req.body.likeType
 
-    let isLikedQuery = await isLiked(userId, tweetId)
+    let isLikedQuery = await isLiked(userId, postId)
     if (isLikedQuery.data.like == true) {
         res.send(utils.sendResponse(false, {}, ERROR.tweet_already_liked))
         return
     }
 
-    let likeTweetQuery = await likeTweet(userId, tweetId)
+    let likeTweetQuery = await likeTweet(userId, postId, likeType)
 
     res.send(utils.sendResponse(true, likeTweetQuery.data, PLACEHOLDER.empty_string))
 }
@@ -173,15 +173,15 @@ exports.unLikeExistingTweet = async (req, res, next) => {
     console.log(req.body, req.baseUrl)
 
     let userId = req.body.userId
-    let tweetId = req.body.tweetId
+    let postId = req.body.postId
 
-    let isLikedQuery = await isLiked(userId, tweetId)
+    let isLikedQuery = await isLiked(userId, postId)
     if (isLikedQuery.data.like == false) {
         res.send(utils.sendResponse(false, {}, ERROR.tweet_already_unliked))
         return
     }
 
-    let unLikeTweetQuery = await unLikeTweet(userId, tweetId)
+    let unLikeTweetQuery = await unLikeTweet(userId, postId)
 
     res.send(utils.sendResponse(true, unLikeTweetQuery.data, PLACEHOLDER.empty_string))
 }
@@ -216,9 +216,9 @@ exports.userLikeTweetList = async (req, res, next) => {
 exports.tweetLikeUserList = async (req, res, next) => {
     console.log(req.body, req.baseUrl)
 
-    let tweetId = req.body.tweetId
+    let postId = req.body.postId
 
-    let userList = await getLikeUserList(tweetId)
+    let userList = await getLikeUserList(postId)
 
     if (userList.success == false) {
         res.send(utils.sendResponse(false, {}, ERROR.error_data_field))

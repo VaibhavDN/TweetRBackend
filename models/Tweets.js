@@ -1,4 +1,4 @@
-const { Sequelize, DataTypes, Model } = require('sequelize')
+const { Sequelize, DataTypes} = require('sequelize')
 const { Comments } = require('./Comments')
 
 const sequelize = new Sequelize('postgres://postgres:postgres@localhost/twitter')
@@ -35,31 +35,8 @@ Comments.belongsTo(Tweets, {
     foreignKey: 'postId'
 })
 
-const TweetLike = sequelize.define('Likes', {
-    userId: {
-        type: DataTypes.BIGINT,
-        allowNull: false,
-    },
-    tweetId: {
-        type: DataTypes.BIGINT,
-        allowNull: false,
-    }
-}, {
-    freezeTableName: true,
-})
-
-Tweets.hasMany(TweetLike, {
-    foreignKey: 'tweetId',
-    onDelete: 'cascade',
-})
-TweetLike.belongsTo(Tweets, {
-    foreignKey: 'tweetId',
-})
-
 Tweets.sync()
-TweetLike.sync()
 
 module.exports = {
     'Tweets': Tweets,
-    'TweetLike': TweetLike
 }

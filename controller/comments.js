@@ -61,7 +61,7 @@ exports.addUserComment = async(req, res, next) => {
  * @param {Object} next 
  */
 exports.getUserComments = async (req, res, next) => {
-    console.log(JSON.stringify(req.params), req.baseUrl, req.url)
+    console.log(req.params, req.baseUrl, req.url)
 
     let userId = req.params.userId
     let tweetId = req.params.postId
@@ -79,9 +79,10 @@ exports.getUserComments = async (req, res, next) => {
     }
     let commentsQueryStatus = commentsQuery.success
     
+    console.log(commentsQuery.data.Comments)
     commentsQuery.data.Comments = getCountAndSelfLike(commentsQuery.data.Comments, userId)
 
-    if (commentsQueryData == null || commentsQueryStatus.success == false) {
+    if (commentsQuery.data == null || commentsQueryStatus.success == false) {
         res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.error_data_field))
         return
     }
@@ -128,9 +129,9 @@ exports.isCommentLiked = async (req, res, next) => {
     console.log(req.body, req.baseUrl)
 
     let userId = req.body.userId
-    let commentId = req.body.commentId
+    let postId = req.body.postId
 
-    let isLikedQuery = await isLiked(userId, commentId)
+    let isLikedQuery = await isLiked(userId, postId)
 
     res.send(utils.sendResponse(true, isLikedQuery.data, PLACEHOLDER.empty_string))
 }
@@ -145,15 +146,15 @@ exports.likeExistingComment = async (req, res, next) => {
     console.log(req.body, req.baseUrl)
 
     let userId = req.body.userId
-    let commentId = req.body.commentId
+    let postId = req.body.postId
 
-    let isLikedQuery = await isLiked(userId, commentId)
+    let isLikedQuery = await isLiked(userId, postId)
     if (isLikedQuery.data.like == true) {
         res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.comment_already_liked))
         return
     }
 
-    let likeCommentQuery = await likeComment(userId, commentId)
+    let likeCommentQuery = await likeComment(userId, postId)
 
     res.send(utils.sendResponse(true, likeCommentQuery.data, PLACEHOLDER.empty_string))
 }
@@ -168,15 +169,15 @@ exports.unLikeExistingComment = async (req, res, next) => {
     console.log(req.body, req.baseUrl)
 
     let userId = req.body.userId
-    let commentId = req.body.commentId
+    let postId = req.body.postId
 
-    let isLikedQuery = await isLiked(userId, commentId)
+    let isLikedQuery = await isLiked(userId, postId)
     if (isLikedQuery.data.like == false) {
         res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.comment_already_unliked))
         return
     }
 
-    let unLikeTweetQuery = await unLikeComment(userId, commentId)
+    let unLikeTweetQuery = await unLikeComment(userId, postId)
 
     res.send(utils.sendResponse(true, unLikeTweetQuery.data, PLACEHOLDER.empty_string))
 }
@@ -211,9 +212,9 @@ exports.userLikeCommentList = async (req, res, next) => {
 exports.commentLikeUserList = async (req, res, next) => {
     console.log(req.body, req.baseUrl)
 
-    let commentId = req.body.commentId
+    let postId = req.body.postId
 
-    let userList = await getLikeUserList(commentId)
+    let userList = await getLikeUserList(postId)
 
     if(userList.success == false) {
         res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.error_data_field))

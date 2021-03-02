@@ -1,4 +1,4 @@
-const ERROR = {
+exports.ERROR = {
     query_error: "Query error",
     error_data_field: "Something went wrong",
     request_exists: "Request already exists",
@@ -20,6 +20,3 @@ const ERROR = {
     comment_already_unliked: "Comment has already been unliked",
 }
 
-module.exports = {
-    'ERROR': ERROR,
-}

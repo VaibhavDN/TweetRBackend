@@ -3,8 +3,9 @@ const { Comments, CommentLike } = require('../../models/Comments')
 const { Tweets } = require('../../models/Tweets')
 const { ERROR } = require('../../errorConstants')
 const utils = require('../../utils')
-const { PLACEHOLDER } = require('./Constants')
+const { PLACEHOLDER, POSTTYPE } = require('./Constants')
 const User = require('../../models/Users')
+const { Like } = require('../../models/Like')
 let queryResult = {
     success: false,
     data: {},
@@ -24,7 +25,11 @@ exports.getComments = async (pageSize, pageNo, tweetId) => {
         include: {
             model: Comments,
             include: {
-                model: CommentLike,
+                model: Like,
+                where: {
+                    postType: POSTTYPE.comment
+                },
+                required: false,
             },
             limit: pageSize,
             offset: ((pageNo - 1) * pageSize),
@@ -45,7 +50,7 @@ exports.getComments = async (pageSize, pageNo, tweetId) => {
         success: true,
         data: getCommentsQuery,
     }
-    //queryResult = utils.classResponse(true, getCommentsQuery, )
+    //console.log(queryResult)
     return utils.jsonSafe(queryResult)
 }
 
@@ -113,21 +118,22 @@ exports.updateComment = async (commentId, commentersId, commentText) => {
  * @param {Integer} userId 
  * @param {Integer} commentId 
  */
-exports.isLiked = async (userId, commentId) => {
-    let isLikedQuery = await CommentLike.findOne({
+exports.isLiked = async (userId, postId) => {
+    let isLikedQuery = await Like.findOne({
         where: {
             'userId': userId,
-            'commentId': commentId,
+            'postId': postId,
+            'postType': POSTTYPE.comment,
         }
     }).catch((err) => {
         return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.error_data_field)
     })
 
-    if(isLikedQuery == null) {
-        return utils.classResponse(true, {like: false}, PLACEHOLDER.empty_string)
+    if (isLikedQuery == null) {
+        return utils.classResponse(true, { like: false }, PLACEHOLDER.empty_string)
     }
 
-    return utils.classResponse(true, {like: true}, PLACEHOLDER.empty_string)
+    return utils.classResponse(true, { like: true }, PLACEHOLDER.empty_string)
 }
 
 /**
@@ -135,10 +141,11 @@ exports.isLiked = async (userId, commentId) => {
  * @param {Integer} userId 
  * @param {Integer} commentId 
  */
-exports.likeComment = async (userId, commentId) => {
-    let likeCommentQuery = await CommentLike.create({
-        userId: userId,
-        commentId: commentId,
+exports.likeComment = async (userId, postId) => {
+    let likeCommentQuery = await Like.create({
+        'userId': userId,
+        'postId': postId,
+        'postType': POSTTYPE.comment,
     }).catch((err) => {
         return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.error_data_field)
     })
@@ -151,13 +158,15 @@ exports.likeComment = async (userId, commentId) => {
  * @param {Integer} userId 
  * @param {Integer} commentId 
  */
-exports.unLikeComment = async (userId, commentId) => {
-    let unLikeCommentQuery = await CommentLike.destroy({
+exports.unLikeComment = async (userId, postId) => {
+    let unLikeCommentQuery = await Like.destroy({
         where: {
-            userId: userId,
-            commentId: commentId,
+            'userId': userId,
+            'postId': postId,
+            'postType': POSTTYPE.comment,
         }
     }).catch((err) => {
+        console.log(err)
         return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.error_data_field)
     })
 
@@ -168,10 +177,11 @@ exports.unLikeComment = async (userId, commentId) => {
  * Get list of users who like a comment
  * @param {Integer} tweetId 
  */
-exports.getLikeUserList = async (commentId) => {
-    let userListQuery = await CommentLike.findAll({
+exports.getLikeUserList = async (postId) => {
+    let userListQuery = await Like.findAll({
         where: {
-            commentId: commentId,
+            'postId': postId,
+            'postType': POSTTYPE.comment,
         },
         include: {
             attributes: ['id', 'name', 'loginid'],
@@ -189,9 +199,10 @@ exports.getLikeUserList = async (commentId) => {
  * @param {Integer} userId 
  */
 exports.getLikeCommentList = async (userId) => {
-    let commentListQuery = await CommentLike.findAll({
+    let commentListQuery = await Like.findAll({
         where: {
             userId: userId,
+            'postType': POSTTYPE.comment,
         },
         include: {
             model: Comments,
