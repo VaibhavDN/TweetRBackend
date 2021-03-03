@@ -1,10 +1,11 @@
 const express = require('express')
+const user = require('../controller/user')
 const router = express.Router()
 
-router.use('/login', require('../controller/user').userLogin)
-router.use('/signup', require('../controller/user').userSignup)
-router.use('/verify', require('../controller/user').verifyIfUserExists)
-router.use('/updateprofile', require('../controller/user').updateUserProfile)
-router.use('/searchusers', require('../controller/user').userSearch)
+router.use('/login', user.userLogin)
+router.use('/signup', user.userSignup)
+router.use('/verify', user.verifyIfUserExists)
+router.use('/updateprofile', user.updateUserProfile)
+router.use('/searchusers', user.userSearch)
 
 module.exports = router

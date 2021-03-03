@@ -1,7 +1,7 @@
 const { findIfTweetExists } = require('../classes/Tweets/Tweets')
 const { findIfUserExists } = require('../classes/Users/Users')
 const { getComments, updateComment, addComment, isLiked, unLikeComment, likeComment, getLikeCommentList, getLikeUserList } = require("../classes/Comments/Comments")
-const { SUCCESS } = require('../text')
+const { TEXT } = require('../text')
 const { ERROR } = require('../errorConstants')
 const utils = require('../utils')
 const { PLACEHOLDER, PAGESIZE, QUERYFAILED } = require('../classes/Comments/Constants')
@@ -13,14 +13,18 @@ const { getCountAndSelfLike } = require('../classes/Comments/Functions')
  * @param {Object} res 
  * @param {Object} next 
  */
-exports.addUserComment = async(req, res, next) => {
+exports.addUserComment = async (req, res, next) => {
     console.log(req.body, req.url)
 
-    let tweetId = req.body.postId // postId is tweetId
-    let commentersId = req.body.commentersId
-    let commentText = req.body.commentText
+    let tweetId = req.body.postId || -1 // postId is tweetId
+    let commentersId = req.body.commentersId || -1
+    let commentText = req.body.commentText || ""
 
-    if(!commentersId || !commentText) {
+    tweetId = Number.parseInt(tweetId)
+    commentersId = Number.parseInt(commentersId)
+    commentText = commentText.toString()
+
+    if (tweetId <= 0 || commentersId <= 0 || commentText.length === 0) {
         res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.parameters_missing))
         return
     }
@@ -29,7 +33,7 @@ exports.addUserComment = async(req, res, next) => {
     let userExistsQueryStatus = userExistsQuery.success
     let userExistsQueryData = userExistsQuery.data
 
-    if(userExistsQueryData == null || userExistsQueryStatus == false) {
+    if (userExistsQueryData == null || userExistsQueryStatus == false) {
         res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.user_doesnot_exist))
         return
     }
@@ -38,7 +42,7 @@ exports.addUserComment = async(req, res, next) => {
     let tweetExistsQueryStatus = tweetExistsQuery.success
     let tweetExistsQueryData = tweetExistsQuery.data
 
-    if(tweetExistsQueryData == null || tweetExistsQueryStatus == false) {
+    if (tweetExistsQueryData == null || tweetExistsQueryStatus == false) {
         res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.tweet_doesnot_exist))
         return
     }
@@ -46,7 +50,7 @@ exports.addUserComment = async(req, res, next) => {
     let addCommentQuery = await addComment(commentersId, userExistsQueryData.name, commentText, tweetExistsQueryData.id)
     let addCommentQueryStatus = addCommentQuery.success
 
-    if(addCommentQuery.data == null || addCommentQueryStatus == false) {
+    if (addCommentQuery.data == null || addCommentQueryStatus == false) {
         res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.add_comment_failed))
         return
     }
@@ -63,22 +67,26 @@ exports.addUserComment = async(req, res, next) => {
 exports.getUserComments = async (req, res, next) => {
     console.log(req.params, req.baseUrl, req.url)
 
-    let userId = req.params.userId
-    let tweetId = req.params.postId
-    let pageNo = req.params.pageNo
+    let userId = req.params.userId || -1
+    let tweetId = req.params.postId || -1
+    let pageNo = req.params.pageNo || -1
     let pageSize = PAGESIZE
 
-    if (!pageNo || !tweetId) {
+    userId = Number.parseInt(userId)
+    tweetId = Number.parseInt(tweetId)
+    pageNo = Number.parseInt(pageNo)
+
+    if (userId <= 0 || tweetId <= 0 || pageNo <= 0) {
         res.send(utils.sendResponse(false, ERROR.parameters_missing))
         return
     }
 
     let commentsQuery = await getComments(pageSize, pageNo, tweetId)
-    if(!commentsQuery.success){
-        res.send(utils.sendResponse(commentsQuery.success,commentsQuery.data,commentsQuery.err));
+    if (!commentsQuery.success) {
+        res.send(utils.sendResponse(commentsQuery.success, commentsQuery.data, commentsQuery.err));
     }
     let commentsQueryStatus = commentsQuery.success
-    
+
     console.log(commentsQuery.data.Comments)
     commentsQuery.data.Comments = getCountAndSelfLike(commentsQuery.data.Comments, userId)
 
@@ -96,14 +104,18 @@ exports.getUserComments = async (req, res, next) => {
  * @param {Object} res 
  * @param {Object} next 
  */
-exports.updateUserComment = async(req, res, next) => {
+exports.updateUserComment = async (req, res, next) => {
     console.log(req.body, req.baseUrl, req.url)
 
-    let commentersId = req.body.commentersId
-    let commentId = req.body.commentId
-    let commentText = req.body.commentText
+    let commentersId = req.body.commentersId || -1
+    let commentId = req.body.commentId || -1
+    let commentText = req.body.commentText || ""
 
-    if(!commentersId || !commentId || !commentText) {
+    commentersId = Number.parseInt(commentersId)
+    commentId = Number.parseInt(commentId)
+    commentText = commentText.toString()
+
+    if (commentersId <= 0 || commentId <= 0 || commentText.length === 0) {
         res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.parameters_missing))
         return
     }
@@ -111,12 +123,12 @@ exports.updateUserComment = async(req, res, next) => {
     let updateCommentQuery = await updateComment(commentId, commentersId, commentText)
     let queryData = updateCommentQuery.data
 
-    if(queryData[0] === QUERYFAILED) {
+    if (queryData[0] === QUERYFAILED) {
         res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.comment_doesnot_exist))
         return
     }
 
-    res.send(utils.sendResponse(true, SUCCESS.comment_updated, PLACEHOLDER.empty_string))
+    res.send(utils.sendResponse(true, TEXT.comment_updated, PLACEHOLDER.empty_string))
 }
 
 /**
@@ -128,8 +140,16 @@ exports.updateUserComment = async(req, res, next) => {
 exports.isCommentLiked = async (req, res, next) => {
     console.log(req.body, req.baseUrl)
 
-    let userId = req.body.userId
-    let postId = req.body.postId
+    let userId = req.body.userId || -1
+    let postId = req.body.postId || -1
+
+    userId = Number.parseInt(userId)
+    postId = Number.parseInt(postId)
+
+    if (userId <= 0 || postId <= 0) {
+        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.parameters_missing))
+        return
+    }
 
     let isLikedQuery = await isLiked(userId, postId)
 
@@ -145,8 +165,16 @@ exports.isCommentLiked = async (req, res, next) => {
 exports.likeExistingComment = async (req, res, next) => {
     console.log(req.body, req.baseUrl)
 
-    let userId = req.body.userId
-    let postId = req.body.postId
+    let userId = req.body.userId || -1
+    let postId = req.body.postId || -1
+
+    userId = Number.parseInt(userId)
+    postId = Number.parseInt(postId)
+
+    if (userId <= 0 || postId <= 0) {
+        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.parameters_missing))
+        return
+    }
 
     let isLikedQuery = await isLiked(userId, postId)
     if (isLikedQuery.data.like == true) {
@@ -168,8 +196,16 @@ exports.likeExistingComment = async (req, res, next) => {
 exports.unLikeExistingComment = async (req, res, next) => {
     console.log(req.body, req.baseUrl)
 
-    let userId = req.body.userId
-    let postId = req.body.postId
+    let userId = req.body.userId || -1
+    let postId = req.body.postId || -1
+
+    userId = Number.parseInt(userId)
+    postId = Number.parseInt(postId)
+
+    if (userId <= 0 || postId <= 0) {
+        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.parameters_missing))
+        return
+    }
 
     let isLikedQuery = await isLiked(userId, postId)
     if (isLikedQuery.data.like == false) {
@@ -191,11 +227,18 @@ exports.unLikeExistingComment = async (req, res, next) => {
 exports.userLikeCommentList = async (req, res, next) => {
     console.log(req.body, req.baseUrl)
 
-    let userId = req.body.userId
+    let userId = req.body.userId || -1
+
+    userId = Number.parseInt(userId)
+
+    if (userId <= 0) {
+        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.parameters_missing))
+        return
+    }
 
     let tweetList = await getLikeCommentList(userId)
 
-    if(tweetList.success == false) {
+    if (tweetList.success == false) {
         res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.error_data_field))
         return
     }
@@ -212,11 +255,18 @@ exports.userLikeCommentList = async (req, res, next) => {
 exports.commentLikeUserList = async (req, res, next) => {
     console.log(req.body, req.baseUrl)
 
-    let postId = req.body.postId
+    let postId = req.body.postId || -1
+
+    postId = Number.parseInt(postId)
+
+    if (postId <= 0) {
+        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.parameters_missing))
+        return
+    }
 
     let userList = await getLikeUserList(postId)
 
-    if(userList.success == false) {
+    if (userList.success == false) {
         res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.error_data_field))
         return
     }

@@ -1,13 +1,14 @@
 const express = require('express')
+const comments = require('../controller/comments')
 const router = express.Router()
 
-router.post('/addcomment', require('../controller/comments').addUserComment)
-router.get('/getcomments/:userId/:postId/:pageNo', require('../controller/comments').getUserComments)
-router.post('/updatecomment', require('../controller/comments').updateUserComment)
-router.use('/iscommentliked', require('../controller/comments').isCommentLiked)
-router.use('/likecomment', require('../controller/comments').likeExistingComment)
-router.use('/unlikecomment', require('../controller/comments').unLikeExistingComment)
-router.use('/likeuserlist', require('../controller/comments').commentLikeUserList)
-router.use('/likecommentlist', require('../controller/comments').userLikeCommentList)
+router.post('/addcomment', comments.addUserComment)
+router.get('/getcomments/:userId/:postId/:pageNo', comments.getUserComments)
+router.post('/updatecomment', comments.updateUserComment)
+router.use('/iscommentliked', comments.isCommentLiked)
+router.use('/likecomment', comments.likeExistingComment)
+router.use('/unlikecomment', comments.unLikeExistingComment)
+router.use('/likeuserlist', comments.commentLikeUserList)
+router.use('/likecommentlist', comments.userLikeCommentList)
 
 module.exports = router

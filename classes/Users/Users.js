@@ -67,6 +67,8 @@ exports.findUserByLoginId = async (loginId) => {
 exports.getFriendsTweets = async (userId, pageSize, pageNo) => {
     let friendsTweetsQuery = await User.findAll({
         attributes: ['name', 'loginid'],
+        limit: pageSize,
+        offset: ((pageNo - 1) * pageSize),
         include: [
             {
                 model: Tweets,

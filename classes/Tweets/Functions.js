@@ -140,7 +140,7 @@ exports.reformatPublicTweetData = (publicTweetsData, userId) => {
  * Extracts array of friend's userId from the find all friends query result.
  * @param {Array of Objects} friendListData 
  */
-exports.getFriendsArray = (friendListData) => {
+exports.getFriendsArray = (friendListData, userId) => {
     let friendList = []
     let friendSet = new Set()
     for (let itr = 0; itr < friendListData.length; itr++) {

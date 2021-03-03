@@ -1,25 +1,23 @@
-const { Sequelize, DataTypes} = require('sequelize')
+const sequelizeImports = require('.')
 const { Comments } = require('./Comments')
 
-const sequelize = new Sequelize('postgres://postgres:postgres@localhost/twitter')
-
-const Tweets = sequelize.define('Tweets', {
+const Tweets = sequelizeImports.sequelize.define('Tweets', {
     userId: {
-        type: DataTypes.INTEGER,
+        type: sequelizeImports.dataType.INTEGER,
         allowNull: false,
     },
     name: {
-        type: DataTypes.TEXT,
+        type: sequelizeImports.dataType.TEXT,
         allowNull: false,
         defaultValue: "Imma Old Boi",
     },
     loginid: {
-        type: DataTypes.TEXT,
+        type: sequelizeImports.dataType.TEXT,
         allowNull: false,
         defaultValue: null,
     },
     tweet: {
-        type: DataTypes.STRING,
+        type: sequelizeImports.dataType.STRING,
         allowNull: false,
     },
 }, {

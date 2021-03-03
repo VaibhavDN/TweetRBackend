@@ -3,7 +3,7 @@ const { ERROR } = require('../errorConstants')
 const utils = require('../utils')
 const { isEmailValid, isPhoneValid } = require('../classes/Users/Functions')
 const { PLACEHOLDER } = require('../classes/Users/Constants')
-const { SUCCESS } = require('../text')
+const { TEXT } = require('../text')
 
 /**
  * Checks if a user already exists or is a new user
@@ -15,14 +15,15 @@ exports.verifyIfUserExists = async(req, res, next) => {
     console.log(req.body, req.baseUrl)
 
     let loginParam = req.body.loginid || ""
+    loginParam = loginParam.toString()
 
-    if(!loginParam) {
-        res.send(utils.sendResponse(false, {}, ERROR.parameters_missing))
+    if(loginParam.length === 0) {
+        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.parameters_missing))
         return
     }
 
     if(!isEmailValid(loginParam) && !isPhoneValid(loginParam)) {
-        res.send(utils.sendResponse(false, {}, ERROR.invalid_email_phoneno))
+        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.invalid_email_phoneno))
         return
     }
 
@@ -30,7 +31,7 @@ exports.verifyIfUserExists = async(req, res, next) => {
     let responseData = findQueryResponse.data
 
     if(responseData == null) {
-        res.send(utils.sendResponse(false, {}, ERROR.user_doesnot_exist))
+        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.user_doesnot_exist))
         return
     }
 
@@ -54,26 +55,29 @@ exports.userLogin = async(req, res, next) => {
     let loginParam = req.body.loginid || ""
     let password = req.body.password || ""
 
-    if(!loginParam || !password) {
-        res.send(utils.sendResponse(false, {}, ERROR.parameters_missing))
+    loginParam = loginParam.toString()
+    password = password.toString()
+
+    if(loginParam.length === 0 || password.length === 0) {
+        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.parameters_missing))
         return
     }
 
     if(!isEmailValid(loginParam) && !isPhoneValid(loginParam)) {
-        res.send(utils.sendResponse(false, {}, ERROR.invalid_email_phoneno))
+        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.invalid_email_phoneno))
         return
     }
 
     let findQueryResponse = await findUserByLoginId(loginParam)
     let responseData = findQueryResponse.data
 
-    if(responseData == null) {
-        res.send(utils.sendResponse(false, {}, ERROR.user_doesnot_exist))
+    if(responseData === null) {
+        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.user_doesnot_exist))
         return
     }
 
     if(responseData.password !== password) {
-        res.send(utils.sendResponse(false, {}, ERROR.invalid_password))
+        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.invalid_password))
         return
     }
 
@@ -96,26 +100,31 @@ exports.userSignup = async(req, res, next) => {
     let password = req.body.password || ""
     let repassword = req.body.repassword || ""
 
-    if(!name || !loginParam || !password || !repassword) {
-        res.send(utils.sendResponse(false, {}, ERROR.parameters_missing))
+    name = name.toString()
+    loginParam = loginParam.toString()
+    password = password.toString()
+    repassword = repassword.toString()
+
+    if(name.length === 0 || loginParam.length === 0 || password.length === 0 || repassword.length === 0) {
+        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.parameters_missing))
         return
     }
 
     if(!isEmailValid(loginParam) && !isPhoneValid(loginParam)) {
-        res.send(utils.sendResponse(false, {}, ERROR.invalid_email_phoneno))
+        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.invalid_email_phoneno))
         return
     }
 
     let findQueryResponse = await findUserByLoginId(loginParam)
     let queryData = findQueryResponse.data
 
-    if(queryData != null) {
-        res.send(utils.sendResponse(false, {}, ERROR.user_already_exists))
+    if(queryData !== null) {
+        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.user_already_exists))
         return
     }
 
     if(password !== repassword) {
-        res.send(utils.sendResponse(false, {}, ERROR.invalid_password))
+        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.invalid_password))
         return
     }
 
@@ -145,45 +154,50 @@ exports.updateUserProfile = async(req, res, next) => {
     let rePassword = req.body.rePassword || ""
     let newName = req.body.name || ""
 
-    if(!loginParam || !oldPassword || ((!password || !rePassword) && newName == null)) {
-        res.send(utils.sendResponse(false, {}, ERROR.parameters_missing))
+    loginParam = loginParam.toString()
+    oldPassword = oldPassword.toString()
+    password = password.toString()
+    rePassword = rePassword.toString()
+    newName = newName.toString()
+
+    if(loginParam.length === 0 || oldPassword.length === 0 || ((password.length === 0 || rePassword.length === 0) && newName.length === 0)) {
+        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.parameters_missing))
         return
     }
 
     if(!isEmailValid(loginParam) && !isPhoneValid(loginParam)) {
-        res.send(utils.sendResponse(false, {}, ERROR.invalid_email_phoneno))
+        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.invalid_email_phoneno))
         return
     }
 
     let findQueryResponse = await findUserByLoginId(loginParam)
-    let responseData = findQueryResponse.data
 
-    if(responseData == null) {
-        res.send(utils.sendResponse(false, {}, ERROR.user_doesnot_exist))
+    if(findQueryResponse.data === null) {
+        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.user_doesnot_exist))
         return
     }
 
     if(password !== rePassword) {
-        res.send(utils.sendResponse(false, {}, ERROR.invalid_password))
+        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.invalid_password))
         return
     }
 
-    if(responseData.password != oldPassword) {
-        res.send(utils.sendResponse(false, {}, ERROR.invalid_password))
+    if(findQueryResponse.data.password !== oldPassword) {
+        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.invalid_password))
         return
     }
 
     let updateQuery
 
-    if(newName != null && newName != '') {
+    if(newName !== null && newName !== '') {
         updateQuery = await updateUserName(newName, loginParam)
     }
 
-    if(password != null && rePassword != null && password != '' && rePassword != '') {
+    if(password !== null && rePassword !== null && password !== '' && rePassword !== '') {
         updateQuery = await updateUserPassword(password, loginParam)
     }
 
-    res.send(utils.sendResponse(true, SUCCESS.profile_updated, PLACEHOLDER.empty_string))
+    res.send(utils.sendResponse(true, TEXT.profile_updated, PLACEHOLDER.empty_string))
 }
 
 /**
@@ -195,11 +209,14 @@ exports.updateUserProfile = async(req, res, next) => {
 exports.userSearch = async (req, res, next) => {
     console.log(req.body, req.url)
 
-    let searchText = req.body.searchText || ""// Search text matches with what is stored in loginid
+    let searchText = req.body.searchText || "" // Search text matches with what is stored in loginid
     let currentUserId = req.body.currentUserId || -1
 
-    if (!searchText) {
-        res.send(utils.sendResponse(false, {}, ERROR.parameters_missing))
+    searchText = searchText.toString()
+    currentUserId = Number.parseInt(currentUserId)
+
+    if (searchText.length === 0 || currentUserId <= 0) {
+        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.parameters_missing))
         return
     }
 

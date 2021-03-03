@@ -1,30 +1,28 @@
-const { Sequelize, DataTypes } = require("sequelize")
+const sequelizeImports = require(".")
 const { Comments } = require("./Comments")
 const { Tweets } = require("./Tweets")
 
-const sequelize = new Sequelize('postgres://postgres:postgres@localhost/twitter')
-
-const Like = sequelize.define('Likes', {
+const Like = sequelizeImports.sequelize.define('Likes', {
     id: {
-        type: DataTypes.INTEGER,
+        type: sequelizeImports.dataType.INTEGER,
         primaryKey: true,
         autoIncrement: true,
         unique: true,
     },
     userId: {
-        type: DataTypes.BIGINT,
+        type: sequelizeImports.dataType.BIGINT,
         allowNull: false,
     },
     postId: {
-        type: DataTypes.BIGINT,
+        type: sequelizeImports.dataType.BIGINT,
         allowNull: false,
     },
     postType: {
-        type: DataTypes.BIGINT,
+        type: sequelizeImports.dataType.BIGINT,
         allowNull: false,
     },
     likeType: {
-        type: DataTypes.BIGINT,
+        type: sequelizeImports.dataType.BIGINT,
         allowNull: false,
         defaultValue: 0,
     }

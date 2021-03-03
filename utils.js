@@ -1,4 +1,13 @@
 /**
+ * Cleans up JSON data from sequelize
+ * removes dataValues, _previousValues etc
+ * @param {JSON} data 
+ */
+const jsonSafe = (data) => {
+    return JSON.parse(JSON.stringify(data))
+}
+
+/**
  * Takes the data and reformats it into the standard format.
  * Used to return data from the classes
  * @param {Boolean} success 
@@ -6,7 +15,7 @@
  * @param {String} err 
  */
 exports.classResponse = (success, data, err) => {
-    data = JSON.parse(JSON.stringify(data))
+    data = jsonSafe(data)
     return {
         success: success,
         data: data,
@@ -27,13 +36,4 @@ exports.sendResponse = (success, data, err) => {
         "data": data,
         "err": err,
     }
-}
-
-/**
- * Cleans up JSON data from sequelize
- * removes dataValues, _previousValues etc
- * @param {JSON} data 
- */
-exports.jsonSafe = (data) => {
-    return JSON.parse(JSON.stringify(data))
 }

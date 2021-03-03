@@ -1,4 +1,4 @@
-exports.SUCCESS = {
+exports.TEXT = {
     friend_request_updated: "Friend request updated",
     comment_updated: "Comment was updated",
     tweet_updated: "Tweet was updated",

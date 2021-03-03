@@ -1,21 +1,19 @@
-const { Sequelize, DataTypes } = require('sequelize')
 const { Tweets } = require('./Tweets')
 const { Like } = require('./Like')
+const sequelizeImports = require('.')
 
-const sequelize = new Sequelize('postgres://postgres:postgres@localhost/twitter')
-
-const User = sequelize.define('User', {
+const User = sequelizeImports.sequelize.define('User', {
     name: {
-        type: DataTypes.TEXT,
+        type: sequelizeImports.dataType.TEXT,
         allowNull: false,
     },
     loginid: {
-        type: DataTypes.TEXT,
+        type: sequelizeImports.dataType.TEXT,
         allowNull: false,
         defaultValue: null,
     },
     password: {
-        type: DataTypes.TEXT,
+        type: sequelizeImports.dataType.TEXT,
         allowNull: false,
     }
 }, {
