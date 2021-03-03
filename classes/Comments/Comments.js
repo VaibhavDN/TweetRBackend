@@ -112,13 +112,15 @@ exports.isLiked = async (userId, postId) => {
  * @param {Integer} userId 
  * @param {Integer} commentId 
  */
-exports.likeComment = async (userId, postId) => {
+exports.likeComment = async (userId, postId, likeType) => {
     let likeCommentQuery = await Like.create({
         'userId': userId,
         'postId': postId,
         'postType': POSTTYPE.comment,
+        'likeType': likeType,
     }).catch((err) => {
-        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.error_data_field)
+        console.log(err)
+        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.query_error)
     })
 
     return utils.classResponse(true, likeCommentQuery, PLACEHOLDER.empty_string)

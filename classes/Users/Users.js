@@ -69,6 +69,11 @@ exports.getFriendsTweets = async (userId, pageSize, pageNo) => {
         attributes: ['name', 'loginid'],
         limit: pageSize,
         offset: ((pageNo - 1) * pageSize),
+        where: {
+            id: {
+                [Op.ne] : userId
+            },
+        },
         include: [
             {
                 model: Tweets,

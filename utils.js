@@ -30,10 +30,10 @@ exports.classResponse = (success, data, err) => {
  * @param {Object} data 
  * @param {String} err 
  */
-exports.sendResponse = (success, data, err) => {
-    return {
+exports.sendResponse = (res, success, data, err) => {
+    return res.send({
         "success": success,
         "data": data,
         "err": err,
-    }
+    })
 }

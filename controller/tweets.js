@@ -1,12 +1,11 @@
-const { findUserByLoginId } = require('../classes/Users/Users')
-const { addNewTweet, updateExistingTweet, deleteExistingTweet, isLiked, likeTweet, unLikeTweet, getLikeUserList, getLikeTweetList } = require('../classes/Tweets/Tweets')
-const { getFriendsTweets, getPublicTweets } = require('../classes/Users/Users')
-const { TEXT } = require('../text')
-const { ERROR } = require('../errorConstants')
+const tweets = require('../classes/Tweets/Tweets')
+const users = require('../classes/Users/Users')
+const text = require('../text')
+const errorConstants = require('../errorConstants')
 const utils = require('../utils')
-const { PLACEHOLDER, PAGESIZE, QUERYFAILED } = require('../classes/Tweets/Constants')
-const { isEmailValid, isPhoneValid, reformatFriendTweetData, reformatPublicTweetData, getFriendsArray } = require('../classes/Tweets/Functions')
-const { getFriendList } = require('../classes/Relationships/Relationships')
+const constants = require('../classes/Tweets/Constants')
+const functions = require('../classes/Tweets/Functions')
+const relationships = require('../classes/Relationships/Relationships')
 
 /**
  * Add new tweet controller
@@ -17,32 +16,32 @@ const { getFriendList } = require('../classes/Relationships/Relationships')
 exports.addTweet = async (req, res, next) => {
     console.log(req.body, req.baseUrl, req.url)
 
-    let loginParam = req.body.loginId
-    let tweetText = req.body.tweetText
+    let loginParam = req.body.loginId || ""
+    let tweettext = req.body.tweetText || ""
 
-    if (!loginParam || !tweetText) {
-        res.send(utils.sendResponse(false, {}, ERROR.parameters_missing))
-        return
+    loginParam = loginParam.toString()
+    tweettext = tweettext.toString()
+
+    if (loginParam.length === 0 || tweettext.length === 0) {
+        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, errorConstants.ERROR.parameters_missing)
     }
 
-    if (!isEmailValid(loginParam) && !isPhoneValid(loginParam)) {
-        res.send(utils.sendResponse(false, {}, ERROR.invalid_email_phoneno))
-        return
+    if (!functions.isEmailValid(loginParam) && !functions.isPhoneValid(loginParam)) {
+        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, errorConstants.ERROR.invalid_email_phoneno)
     }
 
-    let userExistsQuery = await findUserByLoginId(loginParam)
+    let userExistsQuery = await users.findUserByLoginId(loginParam)
     let userExistsQueryStatus = userExistsQuery.success
     let userExistsQueryData = userExistsQuery.data
 
     if (userExistsQueryData == null || userExistsQueryStatus == false) {
-        res.send(utils.sendResponse(false, {}, ERROR.user_doesnot_exist))
-        return
+        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, errorConstants.ERROR.user_doesnot_exist)
     }
 
-    let newTweetQuery = await addNewTweet(userExistsQueryData.id, userExistsQueryData.name, userExistsQueryData.loginid, tweetText)
+    let newTweetQuery = await tweets.addNewTweet(userExistsQueryData.id, userExistsQueryData.name, userExistsQueryData.loginid, tweettext.TEXT)
     let newTweetQueryData = newTweetQuery.data
 
-    res.send(utils.sendResponse(true, newTweetQueryData, PLACEHOLDER.empty_string))
+    return utils.sendResponse(res, true, newTweetQueryData, constants.PLACEHOLDER.empty_string)
 }
 
 /**
@@ -58,36 +57,33 @@ exports.getTweets = async (req, res, next) => {
 
     let userId = req.params.userId || -1
     let pageNo = req.params.pageNo || -1
-    let pageSize = PAGESIZE
+    let pageSize = constants.PAGESIZE
 
     userId = Number.parseInt(userId)
     pageNo = Number.parseInt(pageNo)
 
     if (pageNo <= 0 || userId <= 0) {
-        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.parameters_missing))
-        return
+        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, errorConstants.ERROR.parameters_missing)
     }
 
-    let friendsTweets = await getFriendsTweets(userId, pageSize, pageNo)
-    let reformatedData = reformatFriendTweetData(friendsTweets.data, userId)
+    let friendsTweets = await users.getFriendsTweets(userId, pageSize, pageNo)
+    let reformatedData = functions.reformatFriendTweetData(friendsTweets.data, userId)
 
     if (reformatedData.length != 0) {
-        res.send(utils.sendResponse(true, reformatedData, PLACEHOLDER.empty_string))
-        return
+        return utils.sendResponse(res, true, reformatedData, constants.PLACEHOLDER.empty_string)
     }
 
-    let friendListQuery = await getFriendList(userId)
-    let friendList = getFriendsArray(friendListQuery.data, userId)
+    let friendListQuery = await relationships.getFriendList(userId)
+    let friendList = functions.getFriendsArray(friendListQuery.data, userId)
 
-    let publicTweets = await getPublicTweets(userId, pageSize, pageNo, friendList)
-    reformatedData = reformatPublicTweetData(publicTweets.data, userId)
+    let publicTweets = await users.getPublicTweets(userId, pageSize, pageNo, friendList)
+    reformatedData = functions.reformatPublicTweetData(publicTweets.data, userId)
 
     if (reformatedData == null) {
-        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.user_doesnot_exist))
-        return
+        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, errorConstants.ERROR.user_doesnot_exist)
     }
 
-    res.send(utils.sendResponse(true, reformatedData, PLACEHOLDER.empty_string))
+    return utils.sendResponse(res, true, reformatedData, constants.PLACEHOLDER.empty_string)
 }
 
 /**
@@ -101,25 +97,23 @@ exports.updateTweet = async (req, res, next) => {
 
     let userId = req.body.userId || -1
     let tweetId = req.body.id || -1
-    let tweetText = req.body.tweetText || ""
+    let tweettext = req.body.tweettext || ""
 
     userId = Number.parseInt(userId)
     tweetId = Number.parseInt(tweetId)
-    tweetText = tweetText.toString()
+    tweettext = tweettext.toString()
 
-    if (userId <= 0 || tweetId <= 0 || tweetText.length === 0) {
-        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.parameters_missing))
-        return
+    if (userId <= 0 || tweetId <= 0 || tweettext.length === 0) {
+        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, errorConstants.ERROR.parameters_missing)
     }
 
-    let updateTweetQuery = await updateExistingTweet(tweetId, userId, tweetText)
+    let updateTweetQuery = await tweets.updateExistingTweet(tweetId, userId, tweettext)
 
-    if (updateTweetQuery.data[0] === QUERYFAILED) {
-        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.tweet_doesnot_exist))
-        return
+    if (updateTweetQuery.data[0] === constants.QUERYFAILED) {
+        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, errorConstants.ERROR.tweet_doesnot_exist)
     }
 
-    res.send(utils.sendResponse(true, TEXT.tweet_updated, PLACEHOLDER.empty_string))
+    return utils.sendResponse(res, true, text.TEXT.tweet_updated, constants.PLACEHOLDER.empty_string)
 }
 
 /**
@@ -135,19 +129,17 @@ exports.deleteTweet = async (req, res, next) => {
     tweetId = Number.parseInt(tweetId)
 
     if (tweetId <= 0) {
-        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.parameters_missing))
-        return
+        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, errorConstants.ERROR.parameters_missing)
     }
 
-    let deleteQuery = await deleteExistingTweet(tweetId)
+    let deleteQuery = await tweets.deleteExistingTweet(tweetId)
     let deleteQueryData = deleteQuery.data
 
     if (deleteQueryData == 0) {
-        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.tweet_doesnot_exist))
-        return
+        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, errorConstants.ERROR.tweet_doesnot_exist)
     }
 
-    res.send(utils.sendResponse(true, TEXT.tweet_deleted, PLACEHOLDER.empty_string))
+    return utils.sendResponse(res, true, text.TEXT.tweet_deleted, constants.PLACEHOLDER.empty_string)
 }
 
 exports.isTweetLiked = async (req, res, next) => {
@@ -160,13 +152,12 @@ exports.isTweetLiked = async (req, res, next) => {
     postId = Number.parseInt(postId)
 
     if (userId <= 0 || postId <= 0) {
-        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.parameters_missing))
-        return
+        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, errorConstants.ERROR.parameters_missing)
     }
 
-    let isLikedQuery = await isLiked(userId, postId)
+    let isLikedQuery = await tweets.isLiked(userId, postId)
 
-    res.send(utils.sendResponse(true, isLikedQuery.data, PLACEHOLDER.empty_string))
+    return utils.sendResponse(res, true, isLikedQuery.data, constants.PLACEHOLDER.empty_string)
 }
 
 exports.likeExistingTweet = async (req, res, next) => {
@@ -174,26 +165,26 @@ exports.likeExistingTweet = async (req, res, next) => {
 
     let userId = req.body.userId || -1
     let postId = req.body.postId || -1
-    let likeType = req.body.likeType || -1
+    let likeType = req.body.likeType || ""
 
     userId = Number.parseInt(userId)
     postId = Number.parseInt(postId)
-    likeType = Number.parseInt(likeType)
+    likeType = likeType.toString()
 
-    if (userId <= 0 || postId <= 0 || likeType <= 0) {
-        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.parameters_missing))
-        return
+    if (userId <= 0 || postId <= 0 || likeType.length === 0) {
+        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, errorConstants.ERROR.parameters_missing)
     }
 
-    let isLikedQuery = await isLiked(userId, postId)
+    likeType = constants.LIKETYPES[likeType]
+
+    let isLikedQuery = await tweets.isLiked(userId, postId)
     if (isLikedQuery.data.like == true) {
-        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.tweet_already_liked))
-        return
+        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, errorConstants.ERROR.tweet_already_liked)
     }
 
-    let likeTweetQuery = await likeTweet(userId, postId, likeType)
+    let likeTweetQuery = await tweets.likeTweet(userId, postId, likeType)
 
-    res.send(utils.sendResponse(true, likeTweetQuery.data, PLACEHOLDER.empty_string))
+    return utils.sendResponse(res, true, likeTweetQuery.data, constants.PLACEHOLDER.empty_string)
 }
 
 exports.unLikeExistingTweet = async (req, res, next) => {
@@ -206,19 +197,17 @@ exports.unLikeExistingTweet = async (req, res, next) => {
     postId = Number.parseInt(postId)
 
     if (userId <= 0 || postId <= 0) {
-        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.parameters_missing))
-        return
+        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, errorConstants.ERROR.parameters_missing)
     }
 
-    let isLikedQuery = await isLiked(userId, postId)
+    let isLikedQuery = await tweets.isLiked(userId, postId)
     if (isLikedQuery.data.like == false) {
-        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.tweet_already_unliked))
-        return
+        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, errorConstants.ERROR.tweet_already_unliked)
     }
 
-    let unLikeTweetQuery = await unLikeTweet(userId, postId)
+    let unLikeTweetQuery = await tweets.unLikeTweet(userId, postId)
 
-    res.send(utils.sendResponse(true, unLikeTweetQuery.data, PLACEHOLDER.empty_string))
+    return utils.sendResponse(res, true, unLikeTweetQuery.data, constants.PLACEHOLDER.empty_string)
 }
 
 /**
@@ -234,18 +223,16 @@ exports.userLikeTweetList = async (req, res, next) => {
     userId = Number.parseInt(userId)
 
     if (userId <= 0) {
-        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.parameters_missing))
-        return
+        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, errorConstants.ERROR.parameters_missing)
     }
 
-    let tweetList = await getLikeTweetList(userId)
+    let tweetList = await tweets.getLikeTweetList(userId)
 
     if (tweetList.success == false) {
-        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.error_data_field))
-        return
+        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, errorConstants.ERROR.error_data_field)
     }
 
-    res.send(utils.sendResponse(true, tweetList.data, PLACEHOLDER.empty_string))
+    return utils.sendResponse(res, true, tweetList.data, constants.PLACEHOLDER.empty_string)
 }
 
 /**
@@ -261,18 +248,14 @@ exports.tweetLikeUserList = async (req, res, next) => {
     postId = Number.parseInt(postId)
 
     if (postId <= 0) {
-        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.parameters_missing))
-        return
+        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, errorConstants.ERROR.parameters_missing)
     }
 
-    let userList = await getLikeUserList(postId)
+    let userList = await tweets.getLikeUserList(postId)
 
     if (userList.success == false) {
-        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.error_data_field))
-        return
+        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, errorConstants.ERROR.error_data_field)
     }
 
-    res.send(utils.sendResponse(true, userList.data, PLACEHOLDER.empty_string))
+    return utils.sendResponse(res, true, userList.data, constants.PLACEHOLDER.empty_string)
 }
-
-// utils.sendResponse(req,res,true, likeTweetQueryData, PLACEHOLDER.empty_string);

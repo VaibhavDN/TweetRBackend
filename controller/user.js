@@ -1,9 +1,9 @@
-const { findUserByLoginId, searchFriends, updateUserPassword, searchUnknowns, createNewUser, updateUserName } = require('../classes/Users/Users')
-const { ERROR } = require('../errorConstants')
+const users = require('../classes/Users/Users')
+const error = require('../errorConstants')
 const utils = require('../utils')
-const { isEmailValid, isPhoneValid } = require('../classes/Users/Functions')
-const { PLACEHOLDER } = require('../classes/Users/Constants')
-const { TEXT } = require('../text')
+const functions = require('../classes/Users/Functions')
+const constants = require('../classes/Users/Constants')
+const text = require('../text')
 
 /**
  * Checks if a user already exists or is a new user
@@ -18,21 +18,18 @@ exports.verifyIfUserExists = async(req, res, next) => {
     loginParam = loginParam.toString()
 
     if(loginParam.length === 0) {
-        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.parameters_missing))
-        return
+        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, error.ERROR.parameters_missing)
     }
 
-    if(!isEmailValid(loginParam) && !isPhoneValid(loginParam)) {
-        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.invalid_email_phoneno))
-        return
+    if(!functions.isEmailValid(loginParam) && !functions.isPhoneValid(loginParam)) {
+        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, error.ERROR.invalid_email_phoneno)
     }
 
-    let findQueryResponse = await findUserByLoginId(loginParam)
+    let findQueryResponse = await users.findUserByLoginId(loginParam)
     let responseData = findQueryResponse.data
 
     if(responseData == null) {
-        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.user_doesnot_exist))
-        return
+        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, error.ERROR.user_doesnot_exist)
     }
 
     let data = {
@@ -40,7 +37,7 @@ exports.verifyIfUserExists = async(req, res, next) => {
         "name": responseData.name,
     }
 
-    res.send(utils.sendResponse(true, data, PLACEHOLDER.empty_string))
+    return utils.sendResponse(res, true, data, constants.PLACEHOLDER.empty_string)
 }
 
 /**
@@ -59,33 +56,29 @@ exports.userLogin = async(req, res, next) => {
     password = password.toString()
 
     if(loginParam.length === 0 || password.length === 0) {
-        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.parameters_missing))
-        return
+        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, error.ERROR.parameters_missing)
     }
 
-    if(!isEmailValid(loginParam) && !isPhoneValid(loginParam)) {
-        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.invalid_email_phoneno))
-        return
+    if(!functions.isEmailValid(loginParam) && !functions.isPhoneValid(loginParam)) {
+        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, error.ERROR.invalid_email_phoneno)
     }
 
-    let findQueryResponse = await findUserByLoginId(loginParam)
+    let findQueryResponse = await users.findUserByLoginId(loginParam)
     let responseData = findQueryResponse.data
 
     if(responseData === null) {
-        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.user_doesnot_exist))
-        return
+        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, error.ERROR.user_doesnot_exist)
     }
 
     if(responseData.password !== password) {
-        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.invalid_password))
-        return
+        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, error.ERROR.invalid_password)
     }
 
     let data = {
         "userId": responseData.id,
     }
 
-    res.send(utils.sendResponse(true, data, PLACEHOLDER.empty_string))
+    return utils.sendResponse(res, true, data, constants.PLACEHOLDER.empty_string)
 }
 
 /**
@@ -106,29 +99,25 @@ exports.userSignup = async(req, res, next) => {
     repassword = repassword.toString()
 
     if(name.length === 0 || loginParam.length === 0 || password.length === 0 || repassword.length === 0) {
-        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.parameters_missing))
-        return
+        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, error.ERROR.parameters_missing)
     }
 
-    if(!isEmailValid(loginParam) && !isPhoneValid(loginParam)) {
-        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.invalid_email_phoneno))
-        return
+    if(!functions.isEmailValid(loginParam) && !functions.isPhoneValid(loginParam)) {
+        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, error.ERROR.invalid_email_phoneno)
     }
 
-    let findQueryResponse = await findUserByLoginId(loginParam)
+    let findQueryResponse = await users.findUserByLoginId(loginParam)
     let queryData = findQueryResponse.data
 
     if(queryData !== null) {
-        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.user_already_exists))
-        return
+        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, error.ERROR.user_already_exists)
     }
 
     if(password !== repassword) {
-        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.invalid_password))
-        return
+        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, error.ERROR.invalid_password)
     }
 
-    let createQueryResponse = await createNewUser(name, loginParam, password)
+    let createQueryResponse = await users.createNewUser(name, loginParam, password)
     queryData = createQueryResponse.data
 
     let data = {
@@ -136,7 +125,7 @@ exports.userSignup = async(req, res, next) => {
         "name": queryData.name,
     }
 
-    res.send(utils.sendResponse(true, data, PLACEHOLDER.empty_string))
+    return utils.sendResponse(res, true, data, constants.PLACEHOLDER.empty_string)
 }
 
 /**
@@ -161,43 +150,38 @@ exports.updateUserProfile = async(req, res, next) => {
     newName = newName.toString()
 
     if(loginParam.length === 0 || oldPassword.length === 0 || ((password.length === 0 || rePassword.length === 0) && newName.length === 0)) {
-        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.parameters_missing))
-        return
+        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, error.ERROR.parameters_missing)
     }
 
-    if(!isEmailValid(loginParam) && !isPhoneValid(loginParam)) {
-        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.invalid_email_phoneno))
-        return
+    if(!functions.isEmailValid(loginParam) && !functions.isPhoneValid(loginParam)) {
+        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, error.ERROR.invalid_email_phoneno)
     }
 
-    let findQueryResponse = await findUserByLoginId(loginParam)
+    let findQueryResponse = await users.findUserByLoginId(loginParam)
 
     if(findQueryResponse.data === null) {
-        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.user_doesnot_exist))
-        return
+        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, error.ERROR.user_doesnot_exist)
     }
 
     if(password !== rePassword) {
-        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.invalid_password))
-        return
+        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, error.ERROR.invalid_password)
     }
 
     if(findQueryResponse.data.password !== oldPassword) {
-        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.invalid_password))
-        return
+        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, error.ERROR.invalid_password)
     }
 
     let updateQuery
 
     if(newName !== null && newName !== '') {
-        updateQuery = await updateUserName(newName, loginParam)
+        updateQuery = await users.updateUserName(newName, loginParam)
     }
 
     if(password !== null && rePassword !== null && password !== '' && rePassword !== '') {
-        updateQuery = await updateUserPassword(password, loginParam)
+        updateQuery = await users.updateUserPassword(password, loginParam)
     }
 
-    res.send(utils.sendResponse(true, TEXT.profile_updated, PLACEHOLDER.empty_string))
+    return utils.sendResponse(res, true, text.TEXT.profile_updated, constants.PLACEHOLDER.empty_string)
 }
 
 /**
@@ -216,11 +200,10 @@ exports.userSearch = async (req, res, next) => {
     currentUserId = Number.parseInt(currentUserId)
 
     if (searchText.length === 0 || currentUserId <= 0) {
-        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.parameters_missing))
-        return
+        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, error.ERROR.parameters_missing)
     }
 
-    let searchFriendsQuery = await searchFriends(searchText, currentUserId)
+    let searchFriendsQuery = await users.searchFriends(searchText, currentUserId)
     let queryResultData = searchFriendsQuery.data
 
     if (queryResultData.length != 0) {
@@ -240,22 +223,20 @@ exports.userSearch = async (req, res, next) => {
             }
         }
         
-        res.send(utils.sendResponse(true, queryResultData, PLACEHOLDER.empty_string))
-        return
+        return utils.sendResponse(res, true, queryResultData, constants.PLACEHOLDER.empty_string)
     }
 
-    let searchUnknownQuery = await searchUnknowns(searchText, currentUserId)
+    let searchUnknownQuery = await users.searchUnknowns(searchText, currentUserId)
     queryResultData = searchUnknownQuery.data
     queryResultData[0]['friendshipStatus'] = "unknown"
 
     if (queryResultData.length == 0) {
-        res.send(utils.sendResponse(false, {}, ERROR.user_doesnot_exist))
-        return
+        return utils.sendResponse(false, constants.PLACEHOLDER.empty_response, error.ERROR.user_doesnot_exist)
     }
 
     for (let i = 0; i < queryResultData.length; i++) {
-        queryResultData[i].Relationships = [];
+        queryResultData[i].Relationships = []
     }
 
-    res.send(utils.sendResponse(true, queryResultData, PLACEHOLDER.empty_string))
+    return utils.sendResponse(res, true, queryResultData, constants.PLACEHOLDER.empty_string)
 }

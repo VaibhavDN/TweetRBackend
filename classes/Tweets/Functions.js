@@ -1,4 +1,5 @@
-const { TWEETTYPE, INITIALCOUNT, LIKETYPES } = require("./Constants")
+const text = require("../../text")
+const constants = require("./Constants")
 
 /**
  * Checks if email is valid using regex
@@ -26,13 +27,12 @@ exports.isPhoneValid = (phone) => {
     return true
 }
 
-const countLikeType = (likeArray) => {
-    let likeTypeObjKeys = Object.keys(LIKETYPES)
+const countLikeType = (likeArray, likeTypeObjKeys) => {
     let likeCount = {
-        [likeTypeObjKeys[0]]: INITIALCOUNT,
-        [likeTypeObjKeys[1]]: INITIALCOUNT,
-        [likeTypeObjKeys[2]]: INITIALCOUNT,
-        [likeTypeObjKeys[3]]: INITIALCOUNT,
+        [likeTypeObjKeys[0]]: constants.INITIALCOUNT,
+        [likeTypeObjKeys[1]]: constants.INITIALCOUNT,
+        [likeTypeObjKeys[2]]: constants.INITIALCOUNT,
+        [likeTypeObjKeys[3]]: constants.INITIALCOUNT,
     }
 
     for (let itr = 0; itr < likeArray.length; itr++) {
@@ -57,8 +57,9 @@ const countLikeType = (likeArray) => {
 
 
 const extractTweets = (tweet, name, loginid, userId) => {
+    let likeTypeObjKeys = Object.keys(constants.LIKETYPES)
 
-    let likeCountObj = countLikeType(tweet.Likes)
+    let likeCountObj = countLikeType(tweet.Likes, likeTypeObjKeys)
 
     let data = {
         'id': tweet.id,
@@ -68,10 +69,10 @@ const extractTweets = (tweet, name, loginid, userId) => {
         'tweet': tweet.tweet,
         'likeCount': tweet.Likes.length,
         'selfLike': false,
-        'myLikeType': -1,
+        'myLikeType': text.TEXT.unliked,
         'createdAt': tweet.createdAt,
         'updatedAt': tweet.updatedAt,
-        'type': TWEETTYPE.friend,
+        'type': constants.TWEETTYPE.friend,
         //'like': tweet.Likes,
         'likeCountObj': likeCountObj,
     }
@@ -79,7 +80,7 @@ const extractTweets = (tweet, name, loginid, userId) => {
     for (let itr = 0; itr < tweet.Likes.length; itr++) {
         if (tweet.Likes[itr].userId == userId) {
             data['selfLike'] = true
-            data['myLikeType'] = tweet.Likes[itr].likeType
+            data['myLikeType'] = likeTypeObjKeys[tweet.Likes[itr].likeType]
             break
         }
     }
@@ -101,10 +102,12 @@ exports.reformatFriendTweetData = (friendsTweetsData, userId) => {
 exports.reformatPublicTweetData = (publicTweetsData, userId) => {
     let reformatedData = []
 
+    let likeTypeObjKeys = Object.keys(constants.LIKETYPES)
+
     for (let itr = 0; itr < publicTweetsData.length; itr++) {
         let data = publicTweetsData[itr]
 
-        let likeCountObj = countLikeType(data.Likes)
+        let likeCountObj = countLikeType(data.Likes, likeTypeObjKeys)
 
         let obj = {
             'id': data.id,
@@ -114,18 +117,18 @@ exports.reformatPublicTweetData = (publicTweetsData, userId) => {
             'tweet': data.tweet,
             'likeCount': data.Likes.length,
             'selfLike': false,
-            'myLikeType': -1,
+            'myLikeType': text.TEXT.unliked,
             //'like': data.Likes,
             'createdAt': data.createdAt,
             'updatedAt': data.updatedAt,
-            'type': TWEETTYPE.public,
+            'type': constants.TWEETTYPE.public,
             'likeCountObj': likeCountObj,
         }
 
         for (let itr = 0; itr < data.Likes.length; itr++) {
             if (data.Likes[itr].userId == userId) {
                 obj['selfLike'] = true
-                obj['myLikeType'] = data.Likes[itr].likeType
+                obj['myLikeType'] = likeTypeObjKeys[data.Likes[itr].likeType]
                 break
             }
         }
