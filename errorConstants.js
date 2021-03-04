@@ -18,5 +18,6 @@ exports.ERROR = {
     tweet_already_unliked: "Tweet has already been unliked",
     comment_already_liked: "Comment has already been liked",
     comment_already_unliked: "Comment has already been unliked",
+    unauthorized_token: "Unauthorized token",
 }
 

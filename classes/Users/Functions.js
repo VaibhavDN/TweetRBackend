@@ -1,3 +1,8 @@
+const users = require("../Users/Users")
+const utils = require('../../utils')
+const error = require('../../errorConstants')
+const constants = require('./Constants')
+
 /**
  * Checks if email is valid using regex
  * @param {String} email 
@@ -23,3 +28,32 @@ exports.isPhoneValid = (phone) => {
 
     return true
 }
+
+/**
+ * Checks if user with userId exists in the database
+ * @param {Object} res 
+ * @param {Integer} userId 
+ */
+exports.validateUser = async (res, userId) => {
+    let userExistsQuery = await users.findIfUserExists(userId)
+    let userExistsQueryStatus = userExistsQuery.success
+
+    if (userExistsQuery.data == null || userExistsQueryStatus == false) {
+        utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, error.ERROR.user_doesnot_exist)
+        return
+    }
+}
+
+/**
+ * Re-Formats data from friend request list
+ * Converts numeric status to string status.
+ * @param {Array} data 
+ */
+exports.reFormatFriendList = (data) => {
+    for(let itr = 0; itr < data.length; itr++) {
+        data[itr].status = constants.DBTOFRIENDSTATUS[data[itr].status]
+    }
+
+    return data
+}
+

@@ -3,6 +3,7 @@ const constants = require('../classes/Relationships/Constants')
 const text = require('../text')
 const error = require('../errorConstants')
 const utils = require('../utils')
+const functions = require('../classes/Relationships/Functions')
 
 /**
  * Friend request controller
@@ -15,9 +16,9 @@ const utils = require('../utils')
  * @param {Object} next 
  */
 exports.friendRequest = async (req, res, next) => {
-    console.log(JSON.stringify(req.body), req.baseUrl, req.url)
+    console.log(req.body, req.baseUrl, req.url)
 
-    let currentUserId = req.body.currentUserId || -1
+    let currentUserId = req.body.userId || -1
     let friendUserId = req.body.friendUserId || -1
     let status = req.body.status || ""
 
@@ -28,6 +29,9 @@ exports.friendRequest = async (req, res, next) => {
     if(currentUserId <= 0 || friendUserId <= 0 || status.length === 0) {
         return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, error.ERROR.parameters_missing)
     }
+
+    await functions.validateUser(res, currentUserId)
+    await functions.validateUser(res, friendUserId)
 
     status = constants.FRIENDSTATUS[status]
 
@@ -46,8 +50,8 @@ exports.friendRequest = async (req, res, next) => {
     }
     else if (status === constants.FRIENDSTATUS.accepted || status === constants.FRIENDSTATUS.declined) {
         let changeFriendQuery = await relationships.changeRequestStatus(currentUserId, friendUserId, status)
-
-        if (changeFriendQuery.data[0] == constants.ERRORCODE.zero) {
+        
+        if (changeFriendQuery.data[0] === constants.ERRORCODE.zero) {
             return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, error.ERROR.request_doesnot_exist)
         }
 

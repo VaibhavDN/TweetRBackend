@@ -17,7 +17,7 @@ exports.addUserComment = async (req, res, next) => {
     console.log(req.body, req.url)
 
     let tweetId = req.body.postId || -1 // postId is tweetId
-    let commentersId = req.body.commentersId || -1
+    let commentersId = req.body.userId || -1
     let commentText = req.body.commentText || ""
 
     tweetId = Number.parseInt(tweetId)
@@ -63,7 +63,7 @@ exports.addUserComment = async (req, res, next) => {
 exports.getUserComments = async (req, res, next) => {
     console.log(req.params, req.baseUrl, req.url)
 
-    let userId = req.params.userId || -1
+    let userId = req.body.userId || -1
     let tweetId = req.params.postId || -1
     let pageNo = req.params.pageNo || -1
     let pageSize = constants.PAGESIZE
@@ -103,7 +103,7 @@ exports.getUserComments = async (req, res, next) => {
 exports.updateUserComment = async (req, res, next) => {
     console.log(req.body, req.baseUrl, req.url)
 
-    let commentersId = req.body.commentersId || -1
+    let commentersId = req.body.userId || -1
     let commentId = req.body.commentId || -1
     let commentText = req.body.commentText || ""
 
@@ -114,6 +114,8 @@ exports.updateUserComment = async (req, res, next) => {
     if (commentersId <= 0 || commentId <= 0 || commentText.length === 0) {
         return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, error.ERROR.parameters_missing)
     }
+
+    await functions.validateUser(res, commentersId)
 
     let updateCommentQuery = await comments.updateComment(commentId, commentersId, commentText)
     let queryData = updateCommentQuery.data
@@ -144,6 +146,8 @@ exports.isCommentLiked = async (req, res, next) => {
         return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, error.ERROR.parameters_missing)
     }
 
+    await functions.validateUser(res, userId)
+
     let isLikedQuery = await comments.isLiked(userId, postId)
 
     return utils.sendResponse(res, true, isLikedQuery.data, constants.PLACEHOLDER.empty_string)
@@ -169,6 +173,8 @@ exports.likeExistingComment = async (req, res, next) => {
     if (userId <= 0 || postId <= 0 || likeType.length === 0) {
         return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, error.ERROR.parameters_missing)
     }
+
+    await functions.validateUser(res, userId)
 
     likeType = constants.LIKETYPES[likeType]
 
@@ -201,6 +207,8 @@ exports.unLikeExistingComment = async (req, res, next) => {
         return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, error.ERROR.parameters_missing)
     }
 
+    await functions.validateUser(res, userId)
+
     let isLikedQuery = await comments.isLiked(userId, postId)
     if (isLikedQuery.data.like == false) {
         return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, error.ERROR.comment_already_unliked)
@@ -227,6 +235,8 @@ exports.userLikeCommentList = async (req, res, next) => {
     if (userId <= 0) {
         return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, error.ERROR.parameters_missing)
     }
+
+    await functions.validateUser(res, userId)
 
     let tweetList = await comments.getLikeCommentList(userId)
 

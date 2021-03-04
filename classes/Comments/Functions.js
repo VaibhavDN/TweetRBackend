@@ -3,6 +3,11 @@ const { INITIALCOUNT, LIKETYPES, PLACEHOLDER } = require("./Constants")
 const utils = require('../../utils')
 const { ERROR } = require("../../errorConstants")
 
+/**
+ * Counts how many times a type of like it has been pressed.
+ * @param {Array} likeArray 
+ * @param {Integer} userId 
+ */
 const countLikeType = (likeArray, userId) => {
     let likeTypeObjKeys = Object.keys(LIKETYPES)
     let likeCount = {
@@ -67,12 +72,17 @@ exports.getCountAndSelfLike = (comments, userId) => {
     return comments
 }
 
+/**
+ * Checks if user with userId exists in the database
+ * @param {Object} res 
+ * @param {Integer} userId 
+ */
 exports.validateUser = async (res, userId) => {
     let userExistsQuery = await users.findIfUserExists(userId)
     let userExistsQueryStatus = userExistsQuery.success
 
     if (userExistsQuery.data == null || userExistsQueryStatus == false) {
-        res.send(utils.sendResponse(false, PLACEHOLDER.empty_response, ERROR.user_doesnot_exist))
+        utils.sendResponse(res, false, PLACEHOLDER.empty_response, ERROR.user_doesnot_exist)
         return
     }
 }

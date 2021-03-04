@@ -3,6 +3,7 @@ const { Op } = require('sequelize')
 const { ERROR } = require('../../errorConstants')
 const { FRIENDSTATUS, PLACEHOLDER } = require("./Constants")
 const utils = require('../../utils')
+const User = require("../../models/Users")
 
 /**
  * Checks if friend request already exists between two users
@@ -97,6 +98,10 @@ exports.changeRequestStatus = async (currentUserId, friendUserId, status) => {
     return utils.classResponse(true, updateStatusQuery, PLACEHOLDER.empty_string)
 }
 
+/**
+ * Get list of friends
+ * @param {Integer} userId 
+ */
 exports.getFriendList = async (userId) => {
     let queryResult = await Relationships.findAll({
         where: {
@@ -104,6 +109,32 @@ exports.getFriendList = async (userId) => {
                 { userOneId: userId, },
                 { userTwoId: userId, }
             ]
+        }
+    }).catch((err) => {
+        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.query_error)
+    })
+
+    return utils.classResponse(true, queryResult, PLACEHOLDER.empty_response)
+}
+
+/**
+ * Get list if users who sent current user a friend request
+ * @param {Integer} userId 
+ */
+exports.friendRequestList = async (userId) => {
+    let queryResult = await Relationships.findAll({
+        where: {
+            [Op.or]: [
+                { userTwoId: userId, }
+            ],
+            status: FRIENDSTATUS.pending,
+            actionUserId: {
+                [Op.ne] : userId,
+            }
+        },
+        include: {
+            attributes: ['name', 'loginid'],
+            model: User,
         }
     }).catch((err) => {
         return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.query_error)

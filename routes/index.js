@@ -6,5 +6,6 @@ router.use('/userdetails', require('../controller/getUserDetails')) //!Debug rou
 router.use('/comments', require('./comments'))
 router.use('/relationship', require('./relationship'))
 router.use('/tweets', require('./tweets'))
+router.use('/deviceanalytics', require('./analytics'))
 
 module.exports = router

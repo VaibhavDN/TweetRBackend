@@ -66,6 +66,8 @@ exports.getTweets = async (req, res, next) => {
         return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, errorConstants.ERROR.parameters_missing)
     }
 
+    await functions.validateUser(res, userId)
+
     let friendsTweets = await users.getFriendsTweets(userId, pageSize, pageNo)
     let reformatedData = functions.reformatFriendTweetData(friendsTweets.data, userId)
 
@@ -107,6 +109,8 @@ exports.updateTweet = async (req, res, next) => {
         return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, errorConstants.ERROR.parameters_missing)
     }
 
+    await functions.validateUser(res, userId)
+
     let updateTweetQuery = await tweets.updateExistingTweet(tweetId, userId, tweettext)
 
     if (updateTweetQuery.data[0] === constants.QUERYFAILED) {
@@ -142,6 +146,12 @@ exports.deleteTweet = async (req, res, next) => {
     return utils.sendResponse(res, true, text.TEXT.tweet_deleted, constants.PLACEHOLDER.empty_string)
 }
 
+/**
+ * Checks if the tweet has already been liked
+ * @param {Object} req 
+ * @param {Object} res 
+ * @param {Object} next 
+ */
 exports.isTweetLiked = async (req, res, next) => {
     console.log(req.body, req.baseUrl)
 
@@ -155,11 +165,19 @@ exports.isTweetLiked = async (req, res, next) => {
         return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, errorConstants.ERROR.parameters_missing)
     }
 
+    await functions.validateUser(res, userId)
+
     let isLikedQuery = await tweets.isLiked(userId, postId)
 
     return utils.sendResponse(res, true, isLikedQuery.data, constants.PLACEHOLDER.empty_string)
 }
 
+/**
+ * Likes a tweet
+ * @param {Object} req 
+ * @param {Object} res 
+ * @param {Object} next 
+ */
 exports.likeExistingTweet = async (req, res, next) => {
     console.log(req.body, req.baseUrl)
 
@@ -175,6 +193,8 @@ exports.likeExistingTweet = async (req, res, next) => {
         return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, errorConstants.ERROR.parameters_missing)
     }
 
+    await functions.validateUser(res, userId)
+
     likeType = constants.LIKETYPES[likeType]
 
     let isLikedQuery = await tweets.isLiked(userId, postId)
@@ -187,6 +207,12 @@ exports.likeExistingTweet = async (req, res, next) => {
     return utils.sendResponse(res, true, likeTweetQuery.data, constants.PLACEHOLDER.empty_string)
 }
 
+/**
+ * Unlikes a tweet
+ * @param {Object} req 
+ * @param {Object} res 
+ * @param {Object} next 
+ */
 exports.unLikeExistingTweet = async (req, res, next) => {
     console.log(req.body, req.baseUrl)
 
@@ -199,6 +225,8 @@ exports.unLikeExistingTweet = async (req, res, next) => {
     if (userId <= 0 || postId <= 0) {
         return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, errorConstants.ERROR.parameters_missing)
     }
+
+    await functions.validateUser(res, userId)
 
     let isLikedQuery = await tweets.isLiked(userId, postId)
     if (isLikedQuery.data.like == false) {
@@ -225,6 +253,8 @@ exports.userLikeTweetList = async (req, res, next) => {
     if (userId <= 0) {
         return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, errorConstants.ERROR.parameters_missing)
     }
+
+    await functions.validateUser(res, userId)
 
     let tweetList = await tweets.getLikeTweetList(userId)
 

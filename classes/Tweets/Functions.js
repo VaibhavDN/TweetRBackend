@@ -1,5 +1,6 @@
 const text = require("../../text")
 const constants = require("./Constants")
+const users = require("../Users/Users")
 
 /**
  * Checks if email is valid using regex
@@ -27,6 +28,11 @@ exports.isPhoneValid = (phone) => {
     return true
 }
 
+/**
+ * Counts which type of like has been pressed how many times
+ * @param {Array} likeArray 
+ * @param {Array} likeTypeObjKeys 
+ */
 const countLikeType = (likeArray, likeTypeObjKeys) => {
     let likeCount = {
         [likeTypeObjKeys[0]]: constants.INITIALCOUNT,
@@ -55,7 +61,14 @@ const countLikeType = (likeArray, likeTypeObjKeys) => {
     return likeCount
 }
 
-
+/**
+ * Helper function for public and friends tweet reformatter functions.
+ * Helps in finding out selfLike and selfLikeType
+ * @param {Object} tweet 
+ * @param {String} name 
+ * @param {String} loginid 
+ * @param {Integer} userId 
+ */
 const extractTweets = (tweet, name, loginid, userId) => {
     let likeTypeObjKeys = Object.keys(constants.LIKETYPES)
 
@@ -88,6 +101,11 @@ const extractTweets = (tweet, name, loginid, userId) => {
     return data
 }
 
+/**
+ * Reformats friends tweet data before it can be sent to the frontend
+ * @param {Array of object} friendsTweetsData 
+ * @param {Integer} userId 
+ */
 exports.reformatFriendTweetData = (friendsTweetsData, userId) => {
     let reformatedData = []
     for (let itr = 0; itr < friendsTweetsData.length; itr++) {
@@ -99,6 +117,11 @@ exports.reformatFriendTweetData = (friendsTweetsData, userId) => {
     return reformatedData
 }
 
+/**
+ * Reformats public tweet data before it can be sent to the frontend
+ * @param {Array of Objects} publicTweetsData 
+ * @param {Integer} userId 
+ */
 exports.reformatPublicTweetData = (publicTweetsData, userId) => {
     let reformatedData = []
 
@@ -159,4 +182,19 @@ exports.getFriendsArray = (friendListData, userId) => {
 
     friendList = [...friendSet]
     return friendList
+}
+
+/**
+ * Checks if user with userId exists in the database
+ * @param {Object} res 
+ * @param {Integer} userId 
+ */
+exports.validateUser = async (res, userId) => {
+    let userExistsQuery = await users.findIfUserExists(userId)
+    let userExistsQueryStatus = userExistsQuery.success
+
+    if (userExistsQuery.data == null || userExistsQueryStatus == false) {
+        utils.sendResponse(res, false, PLACEHOLDER.empty_response, ERROR.user_doesnot_exist)
+        return
+    }
 }

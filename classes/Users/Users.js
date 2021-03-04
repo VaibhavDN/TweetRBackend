@@ -191,7 +191,7 @@ exports.searchFriends = async (searchText, currentUserId) => {
             [Op.or]: [
                 {
                     name: {
-                        [Op.like]: "%" + searchText + "%",
+                        [Op.iLike]: "%" + searchText + "%",
                     }
                 },
                 { loginid: searchText },

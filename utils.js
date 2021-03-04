@@ -3,7 +3,7 @@
  * removes dataValues, _previousValues etc
  * @param {JSON} data 
  */
-const jsonSafe = (data) => {
+exports.jsonSafe = (data) => {
     return JSON.parse(JSON.stringify(data))
 }
 
@@ -15,7 +15,7 @@ const jsonSafe = (data) => {
  * @param {String} err 
  */
 exports.classResponse = (success, data, err) => {
-    data = jsonSafe(data)
+    data = this.jsonSafe(data)
     return {
         success: success,
         data: data,
