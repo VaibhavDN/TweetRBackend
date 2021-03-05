@@ -18,7 +18,7 @@ exports.verifyJWT = (req, res, next) => {
         }
 
         //req.userId = decoded.id
-        req.body.userId = decoded.id
+        req.userId = decoded.id
         next()
     })
 }

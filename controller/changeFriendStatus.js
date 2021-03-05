@@ -1,9 +1,10 @@
-const relationships = require('../classes/Relationships/Relationships')
-const constants = require('../classes/Relationships/Constants')
-const text = require('../text')
-const error = require('../errorConstants')
+const Relationships = require('../classes/Relationships/Relationships')
+const Constants = require('../classes/Relationships/Constants')
+const Functions = require('../classes/Relationships/Functions')
+
+const text = require('../text').TEXT
+const error = require('../errorConstants').ERROR
 const utils = require('../utils')
-const functions = require('../classes/Relationships/Functions')
 
 /**
  * Friend request controller
@@ -18,45 +19,44 @@ const functions = require('../classes/Relationships/Functions')
 exports.friendRequest = async (req, res, next) => {
     console.log(req.body, req.baseUrl, req.url)
 
-    let currentUserId = req.body.userId || -1
-    let friendUserId = req.body.friendUserId || -1
+    let userId = req.userId
+    let friendUserId = req.body.friendUserId
     let status = req.body.status || ""
 
-    currentUserId = Number.parseInt(currentUserId)
-    friendUserId = Number.parseInt(friendUserId)
+    userId = parseInt(userId)
+    friendUserId = parseInt(friendUserId)
     status = status.toString()
 
-    if(currentUserId <= 0 || friendUserId <= 0 || status.length === 0) {
-        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, error.ERROR.parameters_missing)
+    if(Number.isNaN(userId) || Number.isNaN(friendUserId) || status.length === 0) {
+        return utils.sendResponse(res, false, {}, error.parameters_missing)
     }
 
-    await functions.validateUser(res, currentUserId)
-    await functions.validateUser(res, friendUserId)
+    console.log(userId, friendUserId)
+    await Functions.validateUser(res, userId)
+    await Functions.validateUser(res, friendUserId)
 
     status = constants.FRIENDSTATUS[status]
 
-    if (status === constants.FRIENDSTATUS.pending) {
-        let friendRequestExists = await relationships.checkAlreadyFriends(currentUserId, friendUserId)
-        friendRequestExistsData = friendRequestExists.data
+    if (status === Constants.FRIENDSTATUS.pending) {
+        let friendRequestExists = await Relationships.checkAlreadyFriends(userId, friendUserId)
 
-        if (friendRequestExistsData !== null) {
-            return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, error.ERROR.request_exists)
+        if (friendRequestExists.data !== null) {
+            return utils.sendResponse(res, false, {}, error.request_exists)
         }
 
-        let createFriendQuery = await relationships.createFriendRequest(currentUserId, friendUserId)
-        createFriendQueryData = createFriendQuery.data
+        let createFriendQuery = await Relationships.createFriendRequest(userId, friendUserId)
 
-        return utils.sendResponse(res, true, createFriendQueryData, constants.PLACEHOLDER.empty_string)
+        return utils.sendResponse(res, true, createFriendQuery.data, "")
     }
-    else if (status === constants.FRIENDSTATUS.accepted || status === constants.FRIENDSTATUS.declined) {
-        let changeFriendQuery = await relationships.changeRequestStatus(currentUserId, friendUserId, status)
+    else if (status === Constants.FRIENDSTATUS.accepted || status === Constants.FRIENDSTATUS.declined) {
+        let changeFriendData = (await Relationships.changeRequestStatus(userId, friendUserId, status)).data
         
-        if (changeFriendQuery.data[0] === constants.ERRORCODE.zero) {
-            return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, error.ERROR.request_doesnot_exist)
+        if (changeFriendData[0] === Constants.ERRORCODE.zero) {
+            return utils.sendResponse(res, false, {}, error.request_doesnot_exist)
         }
 
-        return utils.sendResponse(res, true, text.TEXT.friend_request_updated, constants.PLACEHOLDER.empty_string)
+        return utils.sendResponse(res, true, text.friend_request_updated, "")
     }
 
-    return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, error.ERROR.status_change_failed)
+    return utils.sendResponse(res, false, {}, error.status_change_failed)
 }

@@ -1,11 +1,12 @@
 const Relationships = require('../../models/Relationships')
 const User = require('../../models/Users')
-const { Tweets } = require('../../models/Tweets')
-const { Op } = require('sequelize')
-const { ERROR } = require('../../errorConstants')
+const Tweets = require('../../models/Tweets').Tweets
+const Like = require('../../models/Like').Like
+
+const Op = require('sequelize').Op
+const ERROR = require('../../errorConstants').ERROR
 const utils = require('../../utils')
-const { Like } = require('../../models/Like')
-const { POSTTYPE, PLACEHOLDER } = require('../Users/Constants')
+const POSTTYPE = require('../Users/Constants').POSTTYPE
 
 /**
  * Creates new user in the User model
@@ -19,10 +20,10 @@ exports.createNewUser = async (name, loginid, password) => {
         loginid: loginid,
         password: password,
     }).catch((err) => {
-        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.query_error)
+        return utils.classResponse(false, {}, ERROR.query_error)
     })
 
-    return utils.classResponse(true, createQueryResponse, PLACEHOLDER.empty_string)
+    return utils.classResponse(true, createQueryResponse, "")
 }
 
 /**
@@ -35,10 +36,10 @@ exports.findIfUserExists = async (userId) => {
             id: userId,
         }
     }).catch((err) => {
-        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.query_error)
+        return utils.classResponse(false, {}, ERROR.query_error)
     })
 
-    return utils.classResponse(true, findQueryResponse, PLACEHOLDER.empty_string)
+    return utils.classResponse(true, findQueryResponse, "")
 }
 
 /**
@@ -51,10 +52,10 @@ exports.findUserByLoginId = async (loginId) => {
             loginid: loginId,
         }
     }).catch((err) => {
-        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.query_error)
+        return utils.classResponse(false, {}, ERROR.query_error)
     })
 
-    return utils.classResponse(true, findQueryResponse, PLACEHOLDER.empty_string)
+    return utils.classResponse(true, findQueryResponse, "")
 }
 
 /**
@@ -100,10 +101,10 @@ exports.getFriendsTweets = async (userId, pageSize, pageNo) => {
             },
         ],
     }).catch((err) => {
-        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.query_error)
+        return utils.classResponse(false, {}, ERROR.query_error)
     })
 
-    return utils.classResponse(true, friendsTweetsQuery, PLACEHOLDER.empty_string)
+    return utils.classResponse(true, friendsTweetsQuery, "")
 }
 
 /**
@@ -133,10 +134,10 @@ exports.getPublicTweets = async (userId, pageSize, pageNo, friendList) => {
         ],
         order: [['updatedAt', 'DESC']],
     }).catch((err) => {
-        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.query_error)
+        return utils.classResponse(false, {}, ERROR.query_error)
     })
 
-    return utils.classResponse(true, publicTweetsQuery, PLACEHOLDER.empty_string)
+    return utils.classResponse(true, publicTweetsQuery, "")
 }
 
 /**
@@ -153,10 +154,10 @@ exports.updateUserName = async (newName, loginParam) => {
                 loginid: loginParam,
             },
         }).catch((err) => {
-            return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.query_error)
+            return utils.classResponse(false, {}, ERROR.query_error)
         })
 
-    return utils.classResponse(true, updateQueryResponse, PLACEHOLDER.empty_string)
+    return utils.classResponse(true, updateQueryResponse, "")
 }
 
 /**
@@ -173,10 +174,10 @@ exports.updateUserPassword = async (password, loginParam) => {
                 loginid: loginParam,
             },
         }).catch((err) => {
-            return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.query_error)
+            return utils.classResponse(false, {}, ERROR.query_error)
         })
 
-    return utils.classResponse(true, updateQueryResponse, PLACEHOLDER.empty_string)
+    return utils.classResponse(true, updateQueryResponse, "")
 }
 
 /**
@@ -211,10 +212,10 @@ exports.searchFriends = async (searchText, currentUserId) => {
             order: [['updatedAt', 'DESC']],
         },
     }).catch((err) => {
-        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.query_error)
+        return utils.classResponse(false, {}, ERROR.query_error)
     })
 
-    return utils.classResponse(true, searchUserQuery, PLACEHOLDER.empty_string)
+    return utils.classResponse(true, searchUserQuery, "")
 }
 
 /**
@@ -239,8 +240,8 @@ exports.searchUnknowns = async (searchText, currentUserId) => {
             }
         },
     }).catch((err) => {
-        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.query_error)
+        return utils.classResponse(false, {}, ERROR.query_error)
     })
 
-    return utils.classResponse(true, searchUnknownUserQuery, PLACEHOLDER.empty_string)
+    return utils.classResponse(true, searchUnknownUserQuery, "")
 }

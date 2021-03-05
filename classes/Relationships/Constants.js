@@ -13,8 +13,3 @@ exports.DBTOFRIENDSTATUS = {
 exports.ERRORCODE = {
     zero: 0
 }
-
-exports.PLACEHOLDER = {
-    empty_string: "",
-    empty_response: {},
-}

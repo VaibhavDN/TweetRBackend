@@ -1,8 +1,8 @@
-const users = require('../classes/Users/Users')
-const error = require('../errorConstants')
+const Users = require('../classes/Users/Users')
+
+const Functions = require('../classes/Users/Functions')
+const error = require('../errorConstants').ERROR
 const utils = require('../utils')
-const functions = require('../classes/Users/Functions')
-const constants = require('../classes/Users/Constants')
 const jwt = require('jsonwebtoken')
 const authConfig = require('../config/authConfig')
 
@@ -22,33 +22,31 @@ exports.userLogin = async (req, res, next) => {
     password = password.toString()
 
     if (loginParam.length === 0 || password.length === 0) {
-        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, error.ERROR.parameters_missing)
+        return utils.sendResponse(res, false, {}, error.parameters_missing)
     }
 
-    if (!functions.isEmailValid(loginParam) && !functions.isPhoneValid(loginParam)) {
-        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, error.ERROR.invalid_email_phoneno)
+    if (!Functions.isEmailValid(loginParam) && !Functions.isPhoneValid(loginParam)) {
+        return utils.sendResponse(res, false, {}, error.invalid_email_phoneno)
     }
 
-    let findQueryResponse = await users.findUserByLoginId(loginParam)
-    let responseData = findQueryResponse.data
+    let responseData = (await Users.findUserByLoginId(loginParam)).data
 
     if (responseData === null) {
-        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, error.ERROR.user_doesnot_exist)
+        return utils.sendResponse(res, false, {}, error.user_doesnot_exist)
     }
 
     if (responseData.password !== password) {
-        return utils.sendResponse(res, false, constants.PLACEHOLDER.empty_response, error.ERROR.invalid_password)
+        return utils.sendResponse(res, false, {}, error.invalid_password)
     }
 
     let token = jwt.sign({ id: responseData.id }, authConfig.secret, {
         expiresIn: 1800 // 30 minutes
     })
 
-    console.log(token)
     let data = {
         "userId": responseData.id,
         "token": token,
     }
 
-    return utils.sendResponse(res, true, data, constants.PLACEHOLDER.empty_string)
+    return utils.sendResponse(res, true, data, "")
 }

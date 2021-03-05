@@ -9,7 +9,7 @@ exports.ERROR = {
     tweet_doesnot_exist: "Tweet does not exist",
     add_comment_failed: "Comment was not added",
     comment_doesnot_exist: "Comment for this user does not exist",
-    invalid_email_phoneno: "Email or Phone number is invalid",
+    invalid_email_phoneno_name: "Name or Email or Phone number is invalid",
     invalid_email: "Invalid email",
     invalid_phoneno: "Invalid phone number",
     invalid_password: "Password mismatch",

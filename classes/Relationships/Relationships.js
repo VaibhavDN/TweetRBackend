@@ -1,16 +1,17 @@
 const Relationships = require("../../models/Relationships")
-const { Op } = require('sequelize')
-const { ERROR } = require('../../errorConstants')
-const { FRIENDSTATUS, PLACEHOLDER } = require("./Constants")
-const utils = require('../../utils')
 const User = require("../../models/Users")
+
+const Op = require('sequelize').Op
+const ERROR = require('../../errorConstants').ERROR
+const Constants = require("./Constants")
+const utils = require('../../utils')
 
 /**
  * Checks if friend request already exists between two users
  * @param {Integer} currentUserId 
  * @param {Integer} friendUserId 
  */
-exports.checkAlreadyFriends = async (currentUserId, friendUserId) => {
+const checkAlreadyFriends = async (currentUserId, friendUserId) => {
     let findFriendQuery = await Relationships.findOne({
         where: {
             [Op.or]: [
@@ -23,16 +24,16 @@ exports.checkAlreadyFriends = async (currentUserId, friendUserId) => {
                 {
                     [Op.and]: [
                         { userOneId: friendUserId },
-                        { userTwoId: currentUserId }, //Todo: Remove
+                        { userTwoId: currentUserId },
                     ]
                 }
             ]
         }
     }).catch((err) => {
-        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.query_error)
+        return utils.classResponse(false, {}, ERROR.query_error)
     })
 
-    return utils.classResponse(true, findFriendQuery, PLACEHOLDER.empty_string)
+    return utils.classResponse(true, findFriendQuery, "")
 }
 
 /**
@@ -40,25 +41,25 @@ exports.checkAlreadyFriends = async (currentUserId, friendUserId) => {
  * @param {Integer} currentUserId 
  * @param {Integer} friendUserId 
  */
-exports.createFriendRequest = async (currentUserId, friendUserId) => {
+const createFriendRequest = async (currentUserId, friendUserId) => {
     let createFriendQuery = await Relationships.bulkCreate([
         {
             userOneId: currentUserId,
             userTwoId: friendUserId,
-            status: FRIENDSTATUS.pending,
+            status: Constants.FRIENDSTATUS.pending,
             actionUserId: currentUserId,
         },
         {
             userOneId: friendUserId,
             userTwoId: currentUserId,
-            status: FRIENDSTATUS.pending,
+            status: Constants.FRIENDSTATUS.pending,
             actionUserId: currentUserId,
         },
     ]).catch((err) => {
-        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.query_error)
+        return utils.classResponse(false, {}, ERROR.query_error)
     })
 
-    return utils.classResponse(true, createFriendQuery, PLACEHOLDER.empty_string)
+    return utils.classResponse(true, createFriendQuery, "")
 }
 
 /**
@@ -69,7 +70,7 @@ exports.createFriendRequest = async (currentUserId, friendUserId) => {
  * @param {Integer} friendUserId 
  * @param {Integer} status 
  */
-exports.changeRequestStatus = async (currentUserId, friendUserId, status) => {
+const changeRequestStatus = async (currentUserId, friendUserId, status) => {
     let updateStatusQuery = await Relationships.update({
         status: status,
         actionUserId: currentUserId,
@@ -89,20 +90,20 @@ exports.changeRequestStatus = async (currentUserId, friendUserId, status) => {
                     ]
                 }
             ],
-            status: FRIENDSTATUS.pending, // Status pending then only accept/decline
+            status: Constants.FRIENDSTATUS.pending, // Status pending then only accept/decline
         }
     }).catch((err) => {
-        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.query_error)
+        return utils.classResponse(false, {}, ERROR.query_error)
     })
 
-    return utils.classResponse(true, updateStatusQuery, PLACEHOLDER.empty_string)
+    return utils.classResponse(true, updateStatusQuery, "")
 }
 
 /**
  * Get list of friends
  * @param {Integer} userId 
  */
-exports.getFriendList = async (userId) => {
+const getFriendList = async (userId) => {
     let queryResult = await Relationships.findAll({
         where: {
             [Op.or]: [
@@ -111,23 +112,23 @@ exports.getFriendList = async (userId) => {
             ]
         }
     }).catch((err) => {
-        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.query_error)
+        return utils.classResponse(false, {}, ERROR.query_error)
     })
 
-    return utils.classResponse(true, queryResult, PLACEHOLDER.empty_response)
+    return utils.classResponse(true, queryResult, {})
 }
 
 /**
  * Get list if users who sent current user a friend request
  * @param {Integer} userId 
  */
-exports.friendRequestList = async (userId) => {
+const friendRequestList = async (userId) => {
     let queryResult = await Relationships.findAll({
         where: {
             [Op.or]: [
                 { userTwoId: userId, }
             ],
-            status: FRIENDSTATUS.pending,
+            status: Constants.FRIENDSTATUS.pending,
             actionUserId: {
                 [Op.ne] : userId,
             }
@@ -137,8 +138,16 @@ exports.friendRequestList = async (userId) => {
             model: User,
         }
     }).catch((err) => {
-        return utils.classResponse(false, PLACEHOLDER.empty_response, ERROR.query_error)
+        return utils.classResponse(false, {}, ERROR.query_error)
     })
 
-    return utils.classResponse(true, queryResult, PLACEHOLDER.empty_response)
+    return utils.classResponse(true, queryResult, {})
+}
+
+module.exports = {
+    'checkAlreadyFriends': checkAlreadyFriends,
+    'createFriendRequest': createFriendRequest,
+    'changeRequestStatus': changeRequestStatus,
+    'getFriendList': getFriendList,
+    'friendRequestList': friendRequestList,
 }

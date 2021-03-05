@@ -1,15 +1,15 @@
 const express = require('express')
 const router = express.Router()
 const comments = require('../controller/comments')
-const authMiddleware = require('../middlewares/authJWT')
+const verifyJWT = require('../middlewares/authJWT').verifyJWT
 
-router.post('/addcomment', authMiddleware.verifyJWT, comments.addUserComment)
-router.get('/getcomments/:userId/:postId/:pageNo', authMiddleware.verifyJWT, comments.getUserComments)
-router.post('/updatecomment', authMiddleware.verifyJWT, comments.updateUserComment)
-router.use('/iscommentliked', authMiddleware.verifyJWT, comments.isCommentLiked)
-router.use('/likecomment', authMiddleware.verifyJWT, comments.likeExistingComment)
-router.use('/unlikecomment', authMiddleware.verifyJWT, comments.unLikeExistingComment)
-router.use('/likeuserlist', authMiddleware.verifyJWT, comments.commentLikeUserList)
-router.use('/likecommentlist', authMiddleware.verifyJWT, comments.userLikeCommentList)
+router.post('/addcomment', verifyJWT, comments.addUserComment)
+router.get('/getcomments', verifyJWT, comments.getUserComments)
+router.post('/updatecomment', verifyJWT, comments.updateUserComment)
+router.use('/iscommentliked', verifyJWT, comments.isCommentLiked)
+router.use('/likecomment', verifyJWT, comments.likeExistingComment)
+router.use('/unlikecomment', verifyJWT, comments.unLikeExistingComment)
+router.use('/likeuserlist', verifyJWT, comments.commentLikeUserList)
+router.use('/likecommentlist', verifyJWT, comments.userLikeCommentList)
 
 module.exports = router

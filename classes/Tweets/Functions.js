@@ -1,12 +1,10 @@
 const text = require("../../text")
-const constants = require("./Constants")
-const users = require("../Users/Users")
 
 /**
  * Checks if email is valid using regex
  * @param {String} email 
  */
-exports.isEmailValid = (email) => {
+const isEmailValid = (email) => {
     let regex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
     if (regex.test(email) === false && email != null) {
         return false
@@ -19,7 +17,7 @@ exports.isEmailValid = (email) => {
  * Checks if phone number is valid using regex
  * @param {String} phone 
  */
-exports.isPhoneValid = (phone) => {
+const isPhoneValid = (phone) => {
     let regex = /^[6-9]\d{9}$/
     if (regex.test(phone) === false && phone != null) {
         return false
@@ -106,7 +104,7 @@ const extractTweets = (tweet, name, loginid, userId) => {
  * @param {Array of object} friendsTweetsData 
  * @param {Integer} userId 
  */
-exports.reformatFriendTweetData = (friendsTweetsData, userId) => {
+const reformatFriendTweetData = (friendsTweetsData, userId) => {
     let reformatedData = []
     for (let itr = 0; itr < friendsTweetsData.length; itr++) {
         let data = friendsTweetsData[itr]
@@ -122,7 +120,7 @@ exports.reformatFriendTweetData = (friendsTweetsData, userId) => {
  * @param {Array of Objects} publicTweetsData 
  * @param {Integer} userId 
  */
-exports.reformatPublicTweetData = (publicTweetsData, userId) => {
+const reformatPublicTweetData = (publicTweetsData, userId) => {
     let reformatedData = []
 
     let likeTypeObjKeys = Object.keys(constants.LIKETYPES)
@@ -166,7 +164,7 @@ exports.reformatPublicTweetData = (publicTweetsData, userId) => {
  * Extracts array of friend's userId from the find all friends query result.
  * @param {Array of Objects} friendListData 
  */
-exports.getFriendsArray = (friendListData, userId) => {
+const getFriendsArray = (friendListData, userId) => {
     let friendList = []
     let friendSet = new Set()
     for (let itr = 0; itr < friendListData.length; itr++) {
@@ -189,7 +187,7 @@ exports.getFriendsArray = (friendListData, userId) => {
  * @param {Object} res 
  * @param {Integer} userId 
  */
-exports.validateUser = async (res, userId) => {
+const validateUser = async (res, userId) => {
     let userExistsQuery = await users.findIfUserExists(userId)
     let userExistsQueryStatus = userExistsQuery.success
 
@@ -197,4 +195,14 @@ exports.validateUser = async (res, userId) => {
         utils.sendResponse(res, false, PLACEHOLDER.empty_response, ERROR.user_doesnot_exist)
         return
     }
+}
+
+module.exports = {
+    'isEmailValid': isEmailValid,
+    'isPhoneValid': isPhoneValid,
+    'extractTweets': extractTweets,
+    'reformatFriendTweetData': reformatFriendTweetData,
+    'reformatPublicTweetData': reformatPublicTweetData,
+    'getFriendsArray': getFriendsArray,
+    'validateUser': validateUser,
 }

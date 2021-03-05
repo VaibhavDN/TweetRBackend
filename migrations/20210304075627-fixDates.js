@@ -4,7 +4,7 @@ const users = require('../models/Users')
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    users.update({
+    await users.update({
       createdAt: Sequelize.DataTypes.NOW,
       updatedAt: Sequelize.DataTypes.NOW,
     }, {
@@ -26,8 +26,9 @@ module.exports = {
   },
 
   down: async (queryInterface, Sequelize) => {
-    // What to do here!!!!
+    // Nothing to do here!!!!
   }
 }
 
+//* npx sequelize-cli db:migrate
 //* npx sequelize-cli db:seed:all

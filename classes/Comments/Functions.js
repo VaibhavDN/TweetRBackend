@@ -1,7 +1,8 @@
-const users = require("../Users/Users")
-const { INITIALCOUNT, LIKETYPES, PLACEHOLDER } = require("./Constants")
+const Users = require("../Users/Users")
+
+const Constants = require("./Constants")
 const utils = require('../../utils')
-const { ERROR } = require("../../errorConstants")
+const ERROR = require("../../errorConstants").ERROR
 
 /**
  * Counts how many times a type of like it has been pressed.
@@ -9,12 +10,12 @@ const { ERROR } = require("../../errorConstants")
  * @param {Integer} userId 
  */
 const countLikeType = (likeArray, userId) => {
-    let likeTypeObjKeys = Object.keys(LIKETYPES)
+    let likeTypeObjKeys = Object.keys(Constants.LIKETYPES)
     let likeCount = {
-        [likeTypeObjKeys[0]]: INITIALCOUNT,
-        [likeTypeObjKeys[1]]: INITIALCOUNT,
-        [likeTypeObjKeys[2]]: INITIALCOUNT,
-        [likeTypeObjKeys[3]]: INITIALCOUNT,
+        [likeTypeObjKeys[0]]: Constants.INITIALCOUNT,
+        [likeTypeObjKeys[1]]: Constants.INITIALCOUNT,
+        [likeTypeObjKeys[2]]: Constants.INITIALCOUNT,
+        [likeTypeObjKeys[3]]: Constants.INITIALCOUNT,
     }
 
     let selfLike = false
@@ -56,7 +57,7 @@ const countLikeType = (likeArray, userId) => {
  * @param {Array} comments 
  * @param {Integer} userId 
  */
-exports.getCountAndSelfLike = (comments, userId) => {
+const getCountAndSelfLike = (comments, userId) => {
 
     for (let index = 0; index < comments.length; index++) {
         let data = comments[index]
@@ -77,12 +78,16 @@ exports.getCountAndSelfLike = (comments, userId) => {
  * @param {Object} res 
  * @param {Integer} userId 
  */
-exports.validateUser = async (res, userId) => {
-    let userExistsQuery = await users.findIfUserExists(userId)
-    let userExistsQueryStatus = userExistsQuery.success
+const validateUser = async (res, userId) => {
+    let userExistsQuery = await Users.findIfUserExists(userId)
 
-    if (userExistsQuery.data == null || userExistsQueryStatus == false) {
-        utils.sendResponse(res, false, PLACEHOLDER.empty_response, ERROR.user_doesnot_exist)
+    if (userExistsQuery.data == null || userExistsQuery.success == false) {
+        utils.sendResponse(res, false, {}, ERROR.user_doesnot_exist)
         return
     }
+}
+
+module.exports = {
+    'getCountAndSelfLike': getCountAndSelfLike,
+    'validateUser': validateUser,
 }
