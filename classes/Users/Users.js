@@ -71,7 +71,7 @@ exports.findUserByLoginId = async (loginId) => {
  * @param {Integer} pageSize 
  * @param {Integer} pageNo 
  */
-exports.getFriendsTweets = async (userId, pageSize, pageNo, friendList) => {
+exports.getFriendsTweets = async (pageSize, pageNo, friendList) => {
     try {
         let friendsTweetsQuery = await Tweets.findAll({
             limit: pageSize,
@@ -106,7 +106,7 @@ exports.getFriendsTweets = async (userId, pageSize, pageNo, friendList) => {
  * @param {Integer} pageNo 
  * @param {Array} friendList
  */
-exports.getPublicTweets = async (userId, pageSize, pageNo, friendList) => {
+exports.getPublicTweets = async (pageSize, pageNo, friendList) => {
     try {
         let publicTweetsQuery = await Tweets.findAll({
             limit: pageSize,

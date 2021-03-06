@@ -1,13 +1,14 @@
+const jwt = require('jsonwebtoken')
+
 const Users = require('../classes/Users/Users')
 
 const Functions = require('../classes/Users/Functions')
 const error = require('../errorConstants').ERROR
 const utils = require('../utils')
-const jwt = require('jsonwebtoken')
 const authConfig = require('../config/authConfig')
 
 /**
- * Handles user login
+ * Handles user login and sends back userId and JWT token
  * @param {Object} req 
  * @param {Object} res 
  * @param {Object} next 

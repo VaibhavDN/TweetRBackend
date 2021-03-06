@@ -8,7 +8,6 @@ const text = require('../text').TEXT
 const error = require('../errorConstants').ERROR
 const utils = require('../utils')
 
-
 /**
  * Add comment controller
  * @param {Object} req 
@@ -18,7 +17,7 @@ const utils = require('../utils')
 exports.addUserComment = async (req, res, next) => {
     console.log(req.body, req.url)
 
-    let tweetId = req.body.postId // postId is tweetId
+    let tweetId = req.body.postId
     let userId = req.userId
     let commentText = req.body.commentText || ""
 
@@ -61,7 +60,7 @@ exports.getUserComments = async (req, res, next) => {
     console.log(req.params, req.baseUrl, req.url)
 
     let userId = req.userId
-    let tweetId = req.body.postId
+    let tweetId = req.headers.postid
     let pageNo = req.headers.pageno || 1
     let pageSize = Constants.PAGESIZE
 

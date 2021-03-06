@@ -8,10 +8,6 @@ const utils = require('../utils')
 
 /**
  * Friend request controller
- * Status values:
- * Sends friend request -> 0
- * Accepts friend request -> 1
- * Decline friend request -> 2
  * @param {Object} req 
  * @param {Object} res 
  * @param {Object} next 

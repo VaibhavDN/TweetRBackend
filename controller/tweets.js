@@ -8,7 +8,6 @@ const text = require('../text').TEXT
 const error = require('../errorConstants').ERROR
 const utils = require('../utils')
 
-
 /**
  * Add new tweet controller
  * @param {Object} req 
@@ -66,14 +65,14 @@ exports.getTweets = async (req, res, next) => {
     let friendListQuery = await Relationships.getFriendList(userId)
     let friendList = Functions.getFriendsArray(friendListQuery.data, userId)
 
-    let friendsTweets = await Users.getFriendsTweets(userId, pageSize, pageNo, friendList)
+    let friendsTweets = await Users.getFriendsTweets(pageSize, pageNo, friendList)
     let reformatedData = Functions.reformatTweetData(friendsTweets.data, userId, Constants.TWEETTYPE.friend)
 
     if (reformatedData.length != 0) {
         return utils.sendResponse(res, true, reformatedData, "")
     }
 
-    let publicTweets = await Users.getPublicTweets(userId, pageSize, pageNo, friendList)
+    let publicTweets = await Users.getPublicTweets(pageSize, pageNo, friendList)
     reformatedData = Functions.reformatTweetData(publicTweets.data, userId, Constants.TWEETTYPE.public)
 
     if (reformatedData == null) {

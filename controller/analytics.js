@@ -1,6 +1,12 @@
 const utils = require("../utils")
 const error = require("../errorConstants").ERROR
 
+/**
+ * Logs device analytics
+ * @param {Object} req 
+ * @param {Object} res 
+ * @param {Object} next
+ */
 exports.deviceAnalytics = (req, res, next) => {
     let analyticsObject = req.body.analyticsObject || {}
     analyticsObject = utils.jsonSafe(analyticsObject)
