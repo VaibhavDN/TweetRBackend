@@ -1,4 +1,6 @@
 const text = require("../../text")
+const Users = require('../Users/Users')
+const Constants = require('./Constants')
 
 /**
  * Checks if email is valid using regex
@@ -33,10 +35,10 @@ const isPhoneValid = (phone) => {
  */
 const countLikeType = (likeArray, likeTypeObjKeys) => {
     let likeCount = {
-        [likeTypeObjKeys[0]]: constants.INITIALCOUNT,
-        [likeTypeObjKeys[1]]: constants.INITIALCOUNT,
-        [likeTypeObjKeys[2]]: constants.INITIALCOUNT,
-        [likeTypeObjKeys[3]]: constants.INITIALCOUNT,
+        [likeTypeObjKeys[0]]: Constants.INITIALCOUNT,
+        [likeTypeObjKeys[1]]: Constants.INITIALCOUNT,
+        [likeTypeObjKeys[2]]: Constants.INITIALCOUNT,
+        [likeTypeObjKeys[3]]: Constants.INITIALCOUNT,
     }
 
     for (let itr = 0; itr < likeArray.length; itr++) {
@@ -68,7 +70,7 @@ const countLikeType = (likeArray, likeTypeObjKeys) => {
  * @param {Integer} userId 
  */
 const extractTweets = (tweet, name, loginid, userId) => {
-    let likeTypeObjKeys = Object.keys(constants.LIKETYPES)
+    let likeTypeObjKeys = Object.keys(Constants.LIKETYPES)
 
     let likeCountObj = countLikeType(tweet.Likes, likeTypeObjKeys)
 
@@ -83,7 +85,7 @@ const extractTweets = (tweet, name, loginid, userId) => {
         'myLikeType': text.TEXT.unliked,
         'createdAt': tweet.createdAt,
         'updatedAt': tweet.updatedAt,
-        'type': constants.TWEETTYPE.friend,
+        'type': Constants.TWEETTYPE.friend,
         //'like': tweet.Likes,
         'likeCountObj': likeCountObj,
     }
@@ -123,7 +125,7 @@ const reformatFriendTweetData = (friendsTweetsData, userId) => {
 const reformatPublicTweetData = (publicTweetsData, userId) => {
     let reformatedData = []
 
-    let likeTypeObjKeys = Object.keys(constants.LIKETYPES)
+    let likeTypeObjKeys = Object.keys(Constants.LIKETYPES)
 
     for (let itr = 0; itr < publicTweetsData.length; itr++) {
         let data = publicTweetsData[itr]
@@ -142,7 +144,7 @@ const reformatPublicTweetData = (publicTweetsData, userId) => {
             //'like': data.Likes,
             'createdAt': data.createdAt,
             'updatedAt': data.updatedAt,
-            'type': constants.TWEETTYPE.public,
+            'type': Constants.TWEETTYPE.public,
             'likeCountObj': likeCountObj,
         }
 
@@ -188,7 +190,7 @@ const getFriendsArray = (friendListData, userId) => {
  * @param {Integer} userId 
  */
 const validateUser = async (res, userId) => {
-    let userExistsQuery = await users.findIfUserExists(userId)
+    let userExistsQuery = await Users.findIfUserExists(userId)
     let userExistsQueryStatus = userExistsQuery.success
 
     if (userExistsQuery.data == null || userExistsQueryStatus == false) {

@@ -18,28 +18,30 @@ const constants = require('./Constants')
  * @returns Query result
  */
 const getComments = async (pageSize, pageNo, tweetId) => {
-    let getCommentsQuery = await Tweets.findOne({
-        include: {
-            model: Comments,
+    try {
+        let getCommentsQuery = await Tweets.findOne({
             include: {
-                model: Like,
-                where: {
-                    postType: constants.POSTTYPE.comment
+                model: Comments,
+                include: {
+                    model: Like,
+                    where: {
+                        postType: constants.POSTTYPE.comment
+                    },
+                    required: false,
                 },
-                required: false,
+                limit: pageSize,
+                offset: ((pageNo - 1) * pageSize),
+                order: [['updatedAt', 'DESC']],
             },
-            limit: pageSize,
-            offset: ((pageNo - 1) * pageSize),
-            order: [['updatedAt', 'DESC']],
-        },
-        where: {
-            id: tweetId,
-        }
-    }).catch((err) => {
-        return utils.classResponse(false, {}, ERROR.query_error)
-    })
+            where: {
+                id: tweetId,
+            }
+        })
 
-    return utils.classResponse(true, getCommentsQuery, "")
+        return utils.classResponse(true, getCommentsQuery, "")
+    } catch (err) {
+        return utils.classResponse(false, {}, ERROR.query_error)
+    }
 }
 
 /**
@@ -50,16 +52,18 @@ const getComments = async (pageSize, pageNo, tweetId) => {
  * @param {Integer} tweetId 
  */
 const addComment = async (commentersId, name, commentText, tweetId) => {
-    let addCommentQuery = await Comments.create({
-        commentersId: commentersId,
-        commentersName: name,
-        comment: commentText,
-        postId: tweetId,
-    }).catch((err) => {
-        return utils.classResponse(false, {}, ERROR.query_error)
-    })
+    try {
+        let addCommentQuery = await Comments.create({
+            commentersId: commentersId,
+            commentersName: name,
+            comment: commentText,
+            postId: tweetId,
+        })
 
-    return utils.classResponse(true, addCommentQuery, "")
+        return utils.classResponse(true, addCommentQuery, "")
+    } catch (err) {
+        return utils.classResponse(false, {}, ERROR.query_error)
+    }
 }
 
 /**
@@ -69,20 +73,22 @@ const addComment = async (commentersId, name, commentText, tweetId) => {
  * @param {String} commentText 
  */
 const updateComment = async (commentId, commentersId, commentText) => {
-    let updateCommentQuery = await Comments.update({
-        comment: commentText,
-    }, {
-        where: {
-            [Op.and]: [
-                { id: commentId },
-                { commentersId: commentersId },
-            ]
-        }
-    }).catch((err) => {
-        return utils.classResponse(false, {}, ERROR.query_error)
-    })
+    try {
+        let updateCommentQuery = await Comments.update({
+            comment: commentText,
+        }, {
+            where: {
+                [Op.and]: [
+                    { id: commentId },
+                    { commentersId: commentersId },
+                ]
+            }
+        })
 
-    return utils.classResponse(true, updateCommentQuery, "")
+        return utils.classResponse(true, updateCommentQuery, "")
+    } catch (err) {
+        return utils.classResponse(false, {}, ERROR.query_error)
+    }
 }
 
 /**
@@ -91,18 +97,20 @@ const updateComment = async (commentId, commentersId, commentText) => {
  * @param {Integer} commentId 
  */
 const isLiked = async (userId, postId) => {
-    let isLikedQuery = await Like.findOne({
-        where: {
-            'userId': userId,
-            'postId': postId,
-            'postType': constants.POSTTYPE.comment,
-        }
-    }).catch((err) => {
-        return utils.classResponse(false, {}, ERROR.error_data_field)
-    })
+    try {
+        let isLikedQuery = await Like.findOne({
+            where: {
+                'userId': userId,
+                'postId': postId,
+                'postType': constants.POSTTYPE.comment,
+            }
+        })
 
-    if (isLikedQuery == null) {
-        return utils.classResponse(true, { like: false }, "")
+        if (isLikedQuery == null) {
+            return utils.classResponse(true, { like: false }, "")
+        }
+    } catch (err) {
+        return utils.classResponse(false, {}, ERROR.error_data_field)
     }
 
     return utils.classResponse(true, { like: true }, "")
@@ -114,17 +122,19 @@ const isLiked = async (userId, postId) => {
  * @param {Integer} commentId 
  */
 const likeComment = async (userId, postId, likeType) => {
-    let likeCommentQuery = await Like.create({
-        'userId': userId,
-        'postId': postId,
-        'postType': constants.POSTTYPE.comment,
-        'likeType': likeType,
-    }).catch((err) => {
+    try {
+        let likeCommentQuery = await Like.create({
+            'userId': userId,
+            'postId': postId,
+            'postType': constants.POSTTYPE.comment,
+            'likeType': likeType,
+        })
+
+        return utils.classResponse(true, likeCommentQuery, "")
+    } catch (err) {
         console.log(err)
         return utils.classResponse(false, {}, ERROR.query_error)
-    })
-
-    return utils.classResponse(true, likeCommentQuery, "")
+    }
 }
 
 /**
@@ -133,18 +143,20 @@ const likeComment = async (userId, postId, likeType) => {
  * @param {Integer} commentId 
  */
 const unLikeComment = async (userId, postId) => {
-    let unLikeCommentQuery = await Like.destroy({
-        where: {
-            'userId': userId,
-            'postId': postId,
-            'postType': constants.POSTTYPE.comment,
-        }
-    }).catch((err) => {
+    try {
+        let unLikeCommentQuery = await Like.destroy({
+            where: {
+                'userId': userId,
+                'postId': postId,
+                'postType': constants.POSTTYPE.comment,
+            }
+        })
+
+        return utils.classResponse(true, unLikeCommentQuery, "")
+    } catch (err) {
         console.log(err)
         return utils.classResponse(false, {}, ERROR.error_data_field)
-    })
-
-    return utils.classResponse(true, unLikeCommentQuery, "")
+    }
 }
 
 /**
@@ -152,20 +164,22 @@ const unLikeComment = async (userId, postId) => {
  * @param {Integer} tweetId 
  */
 const getLikeUserList = async (postId) => {
-    let userListQuery = await Like.findAll({
-        where: {
-            'postId': postId,
-            'postType': constants.POSTTYPE.comment,
-        },
-        include: {
-            attributes: ['id', 'name', 'loginid'],
-            model: User,
-        },
-    }).catch((err) => {
-        return utils.classResponse(false, {}, ERROR.error_data_field)
-    })
+    try {
+        let userListQuery = await Like.findAll({
+            where: {
+                'postId': postId,
+                'postType': constants.POSTTYPE.comment,
+            },
+            include: {
+                attributes: ['id', 'name', 'loginid'],
+                model: User,
+            },
+        })
 
-    return utils.classResponse(true, userListQuery, "")
+        return utils.classResponse(true, userListQuery, "")
+    } catch (err) {
+        return utils.classResponse(false, {}, ERROR.error_data_field)
+    }
 }
 
 /**
@@ -173,19 +187,21 @@ const getLikeUserList = async (postId) => {
  * @param {Integer} userId 
  */
 const getLikeCommentList = async (userId) => {
-    let commentListQuery = await Like.findAll({
-        where: {
-            userId: userId,
-            'postType': constants.POSTTYPE.comment,
-        },
-        include: {
-            model: Comments,
-        },
-    }).catch((err) => {
-        return utils.classResponse(false, {}, ERROR.error_data_field)
-    })
+    try {
+        let commentListQuery = await Like.findAll({
+            where: {
+                userId: userId,
+                'postType': constants.POSTTYPE.comment,
+            },
+            include: {
+                model: Comments,
+            },
+        })
 
-    return utils.classResponse(true, commentListQuery, "")
+        return utils.classResponse(true, commentListQuery, "")
+    } catch (err) {
+        return utils.classResponse(false, {}, ERROR.error_data_field)
+    }
 }
 
 module.exports = {

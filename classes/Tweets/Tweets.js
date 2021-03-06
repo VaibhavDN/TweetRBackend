@@ -13,15 +13,17 @@ const Op = require("sequelize").Op
  * @param {Integer} tweetId 
  */
 const findIfTweetExists = async (tweetId) => {
-    let findTweetQuery = await Tweets.findOne({
-        where: {
-            id: tweetId,
-        }
-    }).catch((err) => {
-        return utils.classResponse(false, {}, ERROR.query_error)
-    })
+    try {
+        let findTweetQuery = await Tweets.findOne({
+            where: {
+                id: tweetId,
+            }
+        })
 
-    return utils.classResponse(true, findTweetQuery, "")
+        return utils.classResponse(true, findTweetQuery, "")
+    } catch (err) {
+        return utils.classResponse(false, {}, ERROR.query_error)
+    }
 }
 
 /**
@@ -32,16 +34,18 @@ const findIfTweetExists = async (tweetId) => {
  * @param {String} tweetText 
  */
 const addNewTweet = async (userId, name, loginid, tweetText) => {
-    let addTweetQuery = await Tweets.create({
-        userId: userId,
-        name: name,
-        loginid: loginid,
-        tweet: tweetText,
-    }).catch((err) => {
-        return utils.classResponse(false, {}, ERROR.query_error)
-    })
+    try {
+        let addTweetQuery = await Tweets.create({
+            userId: userId,
+            name: name,
+            loginid: loginid,
+            tweet: tweetText,
+        })
 
-    return utils.classResponse(true, addTweetQuery, "")
+        return utils.classResponse(true, addTweetQuery, "")
+    } catch (err) {
+        return utils.classResponse(false, {}, ERROR.query_error)
+    }
 }
 
 /**
@@ -51,20 +55,22 @@ const addNewTweet = async (userId, name, loginid, tweetText) => {
  * @param {String} tweetText 
  */
 const updateExistingTweet = async (tweetId, userId, tweetText) => {
-    let updateTweetQuery = await Tweets.update({
-        tweet: tweetText,
-    }, {
-        where: {
-            [Op.and]: [
-                { id: tweetId },
-                { userId: userId },
-            ]
-        }
-    }).catch((err) => {
-        return utils.classResponse(false, {}, ERROR.query_error)
-    })
+    try {
+        let updateTweetQuery = await Tweets.update({
+            tweet: tweetText,
+        }, {
+            where: {
+                [Op.and]: [
+                    { id: tweetId },
+                    { userId: userId },
+                ]
+            }
+        })
 
-    return utils.classResponse(true, updateTweetQuery, "")
+        return utils.classResponse(true, updateTweetQuery, "")
+    } catch (err) {
+        return utils.classResponse(false, {}, ERROR.query_error)
+    }
 }
 
 /**
@@ -72,61 +78,68 @@ const updateExistingTweet = async (tweetId, userId, tweetText) => {
  * @param {Integer} tweetId 
  */
 const deleteExistingTweet = async (tweetId) => {
-    let removeTweetQuery = await Tweets.destroy({
-        where: {
-            id: tweetId,
-        }
-    }).catch((err) => {
-        return utils.classResponse(false, {}, ERROR.query_error)
-    })
+    try {
+        let removeTweetQuery = await Tweets.destroy({
+            where: {
+                id: tweetId,
+            }
+        })
 
-    return utils.classResponse(true, removeTweetQuery, "")
+        return utils.classResponse(true, removeTweetQuery, "")
+    } catch (err) {
+        return utils.classResponse(false, {}, ERROR.query_error)
+    }
 }
 
 const isLiked = async (userId, postId) => {
-    let isLikedQuery = await Like.findOne({
-        where: {
-            'userId': userId,
-            'postId': postId,
-            'postType': Constants.POSTTYPE.tweet,
-        }
-    }).catch((err) => {
-        return utils.classResponse(false, {}, ERROR.error_data_field)
-    })
+    try {
+        let isLikedQuery = await Like.findOne({
+            where: {
+                'userId': userId,
+                'postId': postId,
+                'postType': Constants.POSTTYPE.tweet,
+            }
+        })
 
-    if (isLikedQuery == null) {
-        return utils.classResponse(true, { like: false }, "")
+        if (isLikedQuery == null) {
+            return utils.classResponse(true, { like: false }, "")
+        }
+    } catch (err) {
+        return utils.classResponse(false, {}, ERROR.error_data_field)
     }
 
     return utils.classResponse(true, { like: true }, "")
 }
 
 const likeTweet = async (userId, postId, likeType) => {
-    let likeTweetQuery = await Like.create({
-        'userId': userId,
-        'postId': postId,
-        'likeType': likeType,
-        'postType': Constants.POSTTYPE.tweet,
-    }).catch((err) => {
-        console.log(err)
-        return utils.classResponse(false, {}, ERROR.error_data_field)
-    })
+    try {
+        let likeTweetQuery = await Like.create({
+            'userId': userId,
+            'postId': postId,
+            'likeType': likeType,
+            'postType': Constants.POSTTYPE.tweet,
+        })
 
-    return utils.classResponse(true, likeTweetQuery, "")
+        return utils.classResponse(true, likeTweetQuery, "")
+    } catch (err) {
+        return utils.classResponse(false, {}, ERROR.error_data_field)
+    }
 }
 
 const unLikeTweet = async (userId, postId) => {
-    let unLikeTweetQuery = await Like.destroy({
-        where: {
-            'userId': userId,
-            'postId': postId,
-            'postType': Constants.POSTTYPE.tweet,
-        }
-    }).catch((err) => {
-        return utils.classResponse(false, {}, ERROR.error_data_field)
-    })
+    try {
+        let unLikeTweetQuery = await Like.destroy({
+            where: {
+                'userId': userId,
+                'postId': postId,
+                'postType': Constants.POSTTYPE.tweet,
+            }
+        })
 
-    return utils.classResponse(true, unLikeTweetQuery, "")
+        return utils.classResponse(true, unLikeTweetQuery, "")
+    } catch (err) {
+        return utils.classResponse(false, {}, ERROR.error_data_field)
+    }
 }
 
 /**
@@ -134,20 +147,22 @@ const unLikeTweet = async (userId, postId) => {
  * @param {Integer} tweetId 
  */
 const getLikeUserList = async (postId) => {
-    let userListQuery = await Like.findAll({
-        where: {
-            'postId': postId,
-            'postType': Constants.POSTTYPE.tweet,
-        },
-        include: {
-            attributes: ['id', 'name', 'loginid'],
-            model: User,
-        },
-    }).catch((err) => {
-        return utils.classResponse(false, {}, ERROR.error_data_field)
-    })
+    try {
+        let userListQuery = await Like.findAll({
+            where: {
+                'postId': postId,
+                'postType': Constants.POSTTYPE.tweet,
+            },
+            include: {
+                attributes: ['id', 'name', 'loginid'],
+                model: User,
+            },
+        })
 
-    return utils.classResponse(true, userListQuery, "")
+        return utils.classResponse(true, userListQuery, "")
+    } catch (err) {
+        return utils.classResponse(false, {}, ERROR.error_data_field)
+    }
 }
 
 /**
@@ -155,19 +170,21 @@ const getLikeUserList = async (postId) => {
  * @param {Integer} userId 
  */
 const getLikeTweetList = async (userId) => {
-    let tweetListQuery = await Like.findAll({
-        where: {
-            userId: userId,
-            'postType': Constants.POSTTYPE.tweet,
-        },
-        include: {
-            model: Tweets,
-        },
-    }).catch((err) => {
-        return utils.classResponse(false, {}, ERROR.error_data_field)
-    })
+    try {
+        let tweetListQuery = await Like.findAll({
+            where: {
+                userId: userId,
+                'postType': Constants.POSTTYPE.tweet,
+            },
+            include: {
+                model: Tweets,
+            },
+        })
 
-    return utils.classResponse(true, tweetListQuery, "")
+        return utils.classResponse(true, tweetListQuery, "")
+    } catch (err) {
+        return utils.classResponse(false, {}, ERROR.error_data_field)
+    }
 }
 
 module.exports = {

@@ -15,15 +15,17 @@ const POSTTYPE = require('../Users/Constants').POSTTYPE
  * @param {String} password 
  */
 exports.createNewUser = async (name, loginid, password) => {
-    let createQueryResponse = await User.create({
-        name: name,
-        loginid: loginid,
-        password: password,
-    }).catch((err) => {
-        return utils.classResponse(false, {}, ERROR.query_error)
-    })
+    try {
+        let createQueryResponse = await User.create({
+            name: name,
+            loginid: loginid,
+            password: password,
+        })
 
-    return utils.classResponse(true, createQueryResponse, "")
+        return utils.classResponse(true, createQueryResponse, "")
+    } catch (err) {
+        return utils.classResponse(false, {}, ERROR.query_error)
+    }
 }
 
 /**
@@ -31,15 +33,17 @@ exports.createNewUser = async (name, loginid, password) => {
  * @param {Integer} userId User's id found in the Users model
  */
 exports.findIfUserExists = async (userId) => {
-    let findQueryResponse = await User.findOne({
-        where: {
-            id: userId,
-        }
-    }).catch((err) => {
-        return utils.classResponse(false, {}, ERROR.query_error)
-    })
+    try {
+        let findQueryResponse = await User.findOne({
+            where: {
+                id: userId,
+            }
+        })
 
-    return utils.classResponse(true, findQueryResponse, "")
+        return utils.classResponse(true, findQueryResponse, "")
+    } catch (err) {
+        return utils.classResponse(false, {}, ERROR.query_error)
+    }
 }
 
 /**
@@ -47,15 +51,17 @@ exports.findIfUserExists = async (userId) => {
  * @param {Integer} loginId 
  */
 exports.findUserByLoginId = async (loginId) => {
-    let findQueryResponse = await User.findOne({
-        where: {
-            loginid: loginId,
-        }
-    }).catch((err) => {
-        return utils.classResponse(false, {}, ERROR.query_error)
-    })
+    try {
+        let findQueryResponse = await User.findOne({
+            where: {
+                loginid: loginId,
+            }
+        })
 
-    return utils.classResponse(true, findQueryResponse, "")
+        return utils.classResponse(true, findQueryResponse, "")
+    } catch (err) {
+        return utils.classResponse(false, {}, ERROR.query_error)
+    }
 }
 
 /**
@@ -66,45 +72,47 @@ exports.findUserByLoginId = async (loginId) => {
  * @param {Integer} pageNo 
  */
 exports.getFriendsTweets = async (userId, pageSize, pageNo) => {
-    let friendsTweetsQuery = await User.findAll({
-        attributes: ['name', 'loginid'],
-        limit: pageSize,
-        offset: ((pageNo - 1) * pageSize),
-        where: {
-            id: {
-                [Op.ne] : userId
+    try {
+        let friendsTweetsQuery = await User.findAll({
+            attributes: ['name', 'loginid'],
+            limit: pageSize,
+            offset: ((pageNo - 1) * pageSize),
+            where: {
+                id: {
+                    [Op.ne]: userId
+                },
             },
-        },
-        include: [
-            {
-                model: Tweets,
-                limit: pageSize,
-                offset: ((pageNo - 1) * pageSize),
-                order: [['updatedAt', 'DESC']],
-                include: {
-                    model: Like,
-                    where: {
-                        "postType": POSTTYPE.tweet,
-                    },
-                    required: false,
+            include: [
+                {
+                    model: Tweets,
+                    limit: pageSize,
+                    offset: ((pageNo - 1) * pageSize),
                     order: [['updatedAt', 'DESC']],
-                }
-            },
-            {
-                model: Relationships,
-                where: {
-                    [Op.or]: [
-                        { userOneId: userId },
-                        { userTwoId: userId },
-                    ]
-                }
-            },
-        ],
-    }).catch((err) => {
-        return utils.classResponse(false, {}, ERROR.query_error)
-    })
+                    include: {
+                        model: Like,
+                        where: {
+                            "postType": POSTTYPE.tweet,
+                        },
+                        required: false,
+                        order: [['updatedAt', 'DESC']],
+                    }
+                },
+                {
+                    model: Relationships,
+                    where: {
+                        [Op.or]: [
+                            { userOneId: userId },
+                            { userTwoId: userId },
+                        ]
+                    }
+                },
+            ],
+        })
 
-    return utils.classResponse(true, friendsTweetsQuery, "")
+        return utils.classResponse(true, friendsTweetsQuery, "")
+    } catch (err) {
+        return utils.classResponse(false, {}, ERROR.query_error)
+    }
 }
 
 /**
@@ -115,29 +123,31 @@ exports.getFriendsTweets = async (userId, pageSize, pageNo) => {
  * @param {Array} friendList
  */
 exports.getPublicTweets = async (userId, pageSize, pageNo, friendList) => {
-    let publicTweetsQuery = await Tweets.findAll({
-        limit: pageSize,
-        offset: ((pageNo - 1) * pageSize),
-        where: {
-            userId: {
-                [Op.notIn]: friendList
-            }
-        },
-        include: [
-            {
-                model: Like,
-                where: {
-                    postType: POSTTYPE.tweet,
-                },
-                required: false,
+    try {
+        let publicTweetsQuery = await Tweets.findAll({
+            limit: pageSize,
+            offset: ((pageNo - 1) * pageSize),
+            where: {
+                userId: {
+                    [Op.notIn]: friendList
+                }
             },
-        ],
-        order: [['updatedAt', 'DESC']],
-    }).catch((err) => {
-        return utils.classResponse(false, {}, ERROR.query_error)
-    })
+            include: [
+                {
+                    model: Like,
+                    where: {
+                        postType: POSTTYPE.tweet,
+                    },
+                    required: false,
+                },
+            ],
+            order: [['updatedAt', 'DESC']],
+        })
 
-    return utils.classResponse(true, publicTweetsQuery, "")
+        return utils.classResponse(true, publicTweetsQuery, "")
+    } catch (err) {
+        return utils.classResponse(false, {}, ERROR.query_error)
+    }
 }
 
 /**
@@ -146,18 +156,22 @@ exports.getPublicTweets = async (userId, pageSize, pageNo, friendList) => {
  * @param {String} loginParam 
  */
 exports.updateUserName = async (newName, loginParam) => {
-    updateQueryResponse = await User.update({
-        name: newName,
-    },
-        {
-            where: {
-                loginid: loginParam,
+    try {
+        let updateQueryResponse = await User.update(
+            {
+                name: newName,
             },
-        }).catch((err) => {
-            return utils.classResponse(false, {}, ERROR.query_error)
-        })
+            {
+                where: {
+                    loginid: loginParam,
+                },
+            }
+        )
 
-    return utils.classResponse(true, updateQueryResponse, "")
+        return utils.classResponse(true, updateQueryResponse, "")
+    } catch (err) {
+        return utils.classResponse(false, {}, ERROR.query_error)
+    }
 }
 
 /**
@@ -166,18 +180,22 @@ exports.updateUserName = async (newName, loginParam) => {
  * @param {String} loginParam 
  */
 exports.updateUserPassword = async (password, loginParam) => {
-    updateQueryResponse = await User.update({
-        password: password,
-    },
-        {
-            where: {
-                loginid: loginParam,
+    try {
+        let updateQueryResponse = await User.update(
+            {
+                password: password,
             },
-        }).catch((err) => {
-            return utils.classResponse(false, {}, ERROR.query_error)
-        })
+            {
+                where: {
+                    loginid: loginParam,
+                },
+            }
+        )
 
-    return utils.classResponse(true, updateQueryResponse, "")
+        return utils.classResponse(true, updateQueryResponse, "")
+    } catch (err) {
+        return utils.classResponse(false, {}, ERROR.query_error)
+    }
 }
 
 /**
@@ -186,36 +204,38 @@ exports.updateUserPassword = async (password, loginParam) => {
  * @param {Integer} currentUserId 
  */
 exports.searchFriends = async (searchText, currentUserId) => {
-    let searchUserQuery = await User.findAll({
-        attributes: ['id', 'name', 'loginid', 'updatedAt'],
-        where: {
-            [Op.or]: [
-                {
-                    name: {
-                        [Op.iLike]: "%" + searchText + "%",
-                    }
-                },
-                { loginid: searchText },
-            ],
-            id: {
-                [Op.ne]: currentUserId,
-            }
-        },
-        include: {
-            model: Relationships,
+    try {
+        let searchUserQuery = await User.findAll({
+            attributes: ['id', 'name', 'loginid', 'updatedAt'],
             where: {
                 [Op.or]: [
-                    { userOneId: currentUserId },
-                    { userTwoId: currentUserId },
-                ]
+                    {
+                        name: {
+                            [Op.iLike]: "%" + searchText + "%",
+                        }
+                    },
+                    { loginid: searchText },
+                ],
+                id: {
+                    [Op.ne]: currentUserId,
+                }
             },
-            order: [['updatedAt', 'DESC']],
-        },
-    }).catch((err) => {
-        return utils.classResponse(false, {}, ERROR.query_error)
-    })
+            include: {
+                model: Relationships,
+                where: {
+                    [Op.or]: [
+                        { userOneId: currentUserId },
+                        { userTwoId: currentUserId },
+                    ]
+                },
+                order: [['updatedAt', 'DESC']],
+            },
+        })
 
-    return utils.classResponse(true, searchUserQuery, "")
+        return utils.classResponse(true, searchUserQuery, "")
+    } catch (err) {
+        return utils.classResponse(false, {}, ERROR.query_error)
+    }
 }
 
 /**
@@ -224,24 +244,26 @@ exports.searchFriends = async (searchText, currentUserId) => {
  * @param {Integer} currentUserId 
  */
 exports.searchUnknowns = async (searchText, currentUserId) => {
-    let searchUnknownUserQuery = await User.findAll({
-        attributes: ['id', 'name', 'loginid', 'updatedAt'],
-        where: {
-            [Op.or]: [
-                {
-                    name: {
-                        [Op.like]: "%" + searchText + "%",
-                    }
-                },
-                { loginid: searchText },
-            ],
-            id: {
-                [Op.ne]: currentUserId,
-            }
-        },
-    }).catch((err) => {
-        return utils.classResponse(false, {}, ERROR.query_error)
-    })
+    try {
+        let searchUnknownUserQuery = await User.findAll({
+            attributes: ['id', 'name', 'loginid', 'updatedAt'],
+            where: {
+                [Op.or]: [
+                    {
+                        name: {
+                            [Op.like]: "%" + searchText + "%",
+                        }
+                    },
+                    { loginid: searchText },
+                ],
+                id: {
+                    [Op.ne]: currentUserId,
+                }
+            },
+        })
 
-    return utils.classResponse(true, searchUnknownUserQuery, "")
+        return utils.classResponse(true, searchUnknownUserQuery, "")
+    } catch (err) {
+        return utils.classResponse(false, {}, ERROR.query_error)
+    }
 }
