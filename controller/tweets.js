@@ -18,21 +18,17 @@ const utils = require('../utils')
 exports.addTweet = async (req, res, next) => {
     console.log(req.body, req.baseUrl, req.url)
 
-    let loginParam = req.body.loginId || ""
+    let userId = req.userId || ""
     let tweettext = req.body.tweetText || ""
 
-    loginParam = loginParam.toString()
+    userId = userId.toString()
     tweettext = tweettext.toString()
 
-    if (loginParam.length === 0 || tweettext.length === 0) {
+    if (userId.length === 0 || tweettext.length === 0) {
         return utils.sendResponse(res, false, {}, error.parameters_missing)
     }
 
-    if (!Functions.isEmailValid(loginParam) && !Functions.isPhoneValid(loginParam)) {
-        return utils.sendResponse(res, false, {}, error.invalid_email_phoneno)
-    }
-
-    let userExistsQuery = await Users.findUserByLoginId(loginParam)
+    let userExistsQuery = await Users.findIfUserExists(userId)
 
     if (userExistsQuery.data == null || userExistsQuery.success == false) {
         return utils.sendResponse(res, false, {}, error.user_doesnot_exist)
@@ -61,24 +57,24 @@ exports.getTweets = async (req, res, next) => {
     userId = parseInt(userId)
     pageNo = parseInt(pageNo)
 
-    if (Number.isNaN(pageNo) || Number.isNaN(userId)) {
+    if (isNaN(pageNo) || isNaN(userId)) {
         return utils.sendResponse(res, false, {}, error.parameters_missing)
     }
 
     await Functions.validateUser(res, userId)
 
-    let friendsTweets = await Users.getFriendsTweets(userId, pageSize, pageNo)
-    let reformatedData = Functions.reformatFriendTweetData(friendsTweets.data, userId)
+    let friendListQuery = await Relationships.getFriendList(userId)
+    let friendList = Functions.getFriendsArray(friendListQuery.data, userId)
+
+    let friendsTweets = await Users.getFriendsTweets(userId, pageSize, pageNo, friendList)
+    let reformatedData = Functions.reformatTweetData(friendsTweets.data, userId, Constants.TWEETTYPE.friend)
 
     if (reformatedData.length != 0) {
         return utils.sendResponse(res, true, reformatedData, "")
     }
 
-    let friendListQuery = await Relationships.getFriendList(userId)
-    let friendList = Functions.getFriendsArray(friendListQuery.data, userId)
-
     let publicTweets = await Users.getPublicTweets(userId, pageSize, pageNo, friendList)
-    reformatedData = Functions.reformatPublicTweetData(publicTweets.data, userId)
+    reformatedData = Functions.reformatTweetData(publicTweets.data, userId, Constants.TWEETTYPE.public)
 
     if (reformatedData == null) {
         return utils.sendResponse(res, false, {}, error.user_doesnot_exist)
@@ -104,7 +100,7 @@ exports.updateTweet = async (req, res, next) => {
     tweetId = parseInt(tweetId)
     tweettext = tweettext.toString()
 
-    if (Number.isNaN(userId) || Number.isNaN(tweetId) || tweettext.length === 0) {
+    if (isNaN(userId) || isNaN(tweetId) || tweettext.length === 0) {
         return utils.sendResponse(res, false, {}, error.parameters_missing)
     }
 
@@ -131,7 +127,7 @@ exports.deleteTweet = async (req, res, next) => {
     let tweetId = req.body.tweetId
     tweetId = parseInt(tweetId)
 
-    if (Number.isNaN(tweetId)) {
+    if (isNaN(tweetId)) {
         return utils.sendResponse(res, false, {}, error.parameters_missing)
     }
 
@@ -159,7 +155,7 @@ exports.isTweetLiked = async (req, res, next) => {
     userId = parseInt(userId)
     postId = parseInt(postId)
 
-    if (Number.isNaN(userId) || Number.isNaN(postId)) {
+    if (isNaN(userId) || isNaN(postId)) {
         return utils.sendResponse(res, false, {}, error.parameters_missing)
     }
 
@@ -187,7 +183,7 @@ exports.likeExistingTweet = async (req, res, next) => {
     postId = parseInt(postId)
     likeType = likeType.toString()
 
-    if (Number.isNaN(userId) || Number.isNaN(postId) || likeType.length === 0) {
+    if (isNaN(userId) || isNaN(postId) || likeType.length === 0) {
         return utils.sendResponse(res, false, {}, error.parameters_missing)
     }
 
@@ -220,7 +216,7 @@ exports.unLikeExistingTweet = async (req, res, next) => {
     userId = parseInt(userId)
     postId = parseInt(postId)
 
-    if (Number.isNaN(userId) || Number.isNaN(postId)) {
+    if (isNaN(userId) || isNaN(postId)) {
         return utils.sendResponse(res, false, {}, error.parameters_missing)
     }
 
@@ -248,7 +244,7 @@ exports.userLikeTweetList = async (req, res, next) => {
     let userId = req.userId
     userId = parseInt(userId)
 
-    if (Number.isNaN(userId)) {
+    if (isNaN(userId)) {
         return utils.sendResponse(res, false, {}, error.parameters_missing)
     }
 
@@ -275,7 +271,7 @@ exports.tweetLikeUserList = async (req, res, next) => {
     let postId = req.body.postId
     postId = parseInt(postId)
 
-    if (Number.isNaN(postId)) {
+    if (isNaN(postId)) {
         return utils.sendResponse(res, false, {}, error.parameters_missing)
     }
 

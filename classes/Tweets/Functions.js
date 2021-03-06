@@ -102,27 +102,11 @@ const extractTweets = (tweet, name, loginid, userId) => {
 }
 
 /**
- * Reformats friends tweet data before it can be sent to the frontend
- * @param {Array of object} friendsTweetsData 
- * @param {Integer} userId 
- */
-const reformatFriendTweetData = (friendsTweetsData, userId) => {
-    let reformatedData = []
-    for (let itr = 0; itr < friendsTweetsData.length; itr++) {
-        let data = friendsTweetsData[itr]
-        data.Tweets.forEach((item) => {
-            reformatedData.push(extractTweets(item, data.name, data.loginid, userId))
-        })
-    }
-    return reformatedData
-}
-
-/**
  * Reformats public tweet data before it can be sent to the frontend
  * @param {Array of Objects} publicTweetsData 
  * @param {Integer} userId 
  */
-const reformatPublicTweetData = (publicTweetsData, userId) => {
+const reformatTweetData = (publicTweetsData, userId, tweetType) => {
     let reformatedData = []
 
     let likeTypeObjKeys = Object.keys(Constants.LIKETYPES)
@@ -144,7 +128,7 @@ const reformatPublicTweetData = (publicTweetsData, userId) => {
             //'like': data.Likes,
             'createdAt': data.createdAt,
             'updatedAt': data.updatedAt,
-            'type': Constants.TWEETTYPE.public,
+            'type': tweetType,
             'likeCountObj': likeCountObj,
         }
 
@@ -202,9 +186,7 @@ const validateUser = async (res, userId) => {
 module.exports = {
     'isEmailValid': isEmailValid,
     'isPhoneValid': isPhoneValid,
-    'extractTweets': extractTweets,
-    'reformatFriendTweetData': reformatFriendTweetData,
-    'reformatPublicTweetData': reformatPublicTweetData,
+    'reformatTweetData': reformatTweetData,
     'getFriendsArray': getFriendsArray,
     'validateUser': validateUser,
 }

@@ -27,7 +27,7 @@ exports.friendRequest = async (req, res, next) => {
     friendUserId = parseInt(friendUserId)
     status = status.toString()
 
-    if(Number.isNaN(userId) || Number.isNaN(friendUserId) || status.length === 0) {
+    if(isNaN(userId) || isNaN(friendUserId) || status.length === 0) {
         return utils.sendResponse(res, false, {}, error.parameters_missing)
     }
 
@@ -35,7 +35,7 @@ exports.friendRequest = async (req, res, next) => {
     await Functions.validateUser(res, userId)
     await Functions.validateUser(res, friendUserId)
 
-    status = constants.FRIENDSTATUS[status]
+    status = Constants.FRIENDSTATUS[status]
 
     if (status === Constants.FRIENDSTATUS.pending) {
         let friendRequestExists = await Relationships.checkAlreadyFriends(userId, friendUserId)

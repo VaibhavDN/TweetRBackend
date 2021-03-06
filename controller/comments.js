@@ -26,7 +26,7 @@ exports.addUserComment = async (req, res, next) => {
     userId = parseInt(userId)
     commentText = commentText.toString()
 
-    if (Number.isNaN(tweetId) || Number.isNaN(userId) || commentText.length === 0) {
+    if (isNaN(tweetId) || isNaN(userId) || commentText.length === 0) {
         return utils.sendResponse(res, false, {}, error.parameters_missing)
     }
 
@@ -62,14 +62,14 @@ exports.getUserComments = async (req, res, next) => {
 
     let userId = req.userId
     let tweetId = req.body.postId
-    let pageNo = req.body.pageNo || 1
+    let pageNo = req.headers.pageno || 1
     let pageSize = Constants.PAGESIZE
 
-    userId = Number.parseInt(userId)
-    tweetId = Number.parseInt(tweetId)
-    pageNo = Number.parseInt(pageNo)
+    userId = parseInt(userId)
+    tweetId = parseInt(tweetId)
+    pageNo = parseInt(pageNo)
 
-    if (Number.isNaN(userId) || Number.isNaN(tweetId) || Number.isNaN(pageNo)) {
+    if (isNaN(userId) || isNaN(tweetId) || isNaN(pageNo)) {
         return utils.sendResponse(res, false, error.parameters_missing)
     }
 
@@ -99,11 +99,11 @@ exports.updateUserComment = async (req, res, next) => {
     let commentId = req.body.commentId
     let commentText = req.body.commentText || ""
 
-    userId = Number.parseInt(userId)
-    commentId = Number.parseInt(commentId)
+    userId = parseInt(userId)
+    commentId = parseInt(commentId)
     commentText = commentText.toString()
 
-    if (Number.isNaN(userId) || Number.isNaN(commentId) || commentText.length === 0) {
+    if (isNaN(userId) || isNaN(commentId) || commentText.length === 0) {
         return utils.sendResponse(res, false, {}, error.parameters_missing)
     }
 
@@ -130,10 +130,10 @@ exports.isCommentLiked = async (req, res, next) => {
     let userId = req.userId
     let postId = req.body.postId
 
-    userId = Number.parseInt(userId)
-    postId = Number.parseInt(postId)
+    userId = parseInt(userId)
+    postId = parseInt(postId)
 
-    if (Number.isNaN(userId) || Number.isNaN(postId)) {
+    if (isNaN(userId) || isNaN(postId)) {
         return utils.sendResponse(res, false, {}, error.parameters_missing)
     }
 
@@ -157,11 +157,11 @@ exports.likeExistingComment = async (req, res, next) => {
     let postId = req.body.postId
     let likeType = req.body.likeType || ""
 
-    userId = Number.parseInt(userId)
-    postId = Number.parseInt(postId)
+    userId = parseInt(userId)
+    postId = parseInt(postId)
     likeType = likeType.toString()
 
-    if (Number.isNaN(userId) || Number.isNaN(postId) || likeType.length === 0) {
+    if (isNaN(userId) || isNaN(postId) || likeType.length === 0) {
         return utils.sendResponse(res, false, {}, error.parameters_missing)
     }
 
@@ -191,10 +191,10 @@ exports.unLikeExistingComment = async (req, res, next) => {
     let userId = req.userId
     let postId = req.body.postId
 
-    userId = Number.parseInt(userId)
-    postId = Number.parseInt(postId)
+    userId = parseInt(userId)
+    postId = parseInt(postId)
 
-    if (Number.isNaN(userId) || Number.isNaN(postId)) {
+    if (isNaN(userId) || isNaN(postId)) {
         return utils.sendResponse(res, false, {}, error.parameters_missing)
     }
 
@@ -221,9 +221,9 @@ exports.userLikeCommentList = async (req, res, next) => {
 
     let userId = req.userId
 
-    userId = Number.parseInt(userId)
+    userId = parseInt(userId)
 
-    if (Number.isNaN(userId)) {
+    if (isNaN(userId)) {
         return utils.sendResponse(res, false, {}, error.parameters_missing)
     }
 
@@ -249,9 +249,9 @@ exports.commentLikeUserList = async (req, res, next) => {
 
     let postId = req.body.postId
 
-    postId = Number.parseInt(postId)
+    postId = parseInt(postId)
 
-    if (Number.isNaN(postId)) {
+    if (isNaN(postId)) {
         return utils.sendResponse(res, false, {}, error.parameters_missing)
     }
 

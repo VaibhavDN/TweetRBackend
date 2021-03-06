@@ -157,7 +157,7 @@ exports.userSearch = async (req, res, next) => {
     searchText = searchText.toString()
     userId = parseInt(userId)
 
-    if (searchText.length === 0 || Number.isNaN(userId)) {
+    if (searchText.length === 0 || isNaN(userId)) {
         return utils.sendResponse(res, false, {}, error.parameters_missing)
     }
 
@@ -203,7 +203,7 @@ exports.getFriendRequestList = async (req, res, next) => {
     let userId = req.userId
     userId = parseInt(userId)
 
-    if (Number.isNaN(userId)) {
+    if (isNaN(userId)) {
         return utils.sendResponse(res, false, {}, error.parameters_missing)
     }
 

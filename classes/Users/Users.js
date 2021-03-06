@@ -71,44 +71,28 @@ exports.findUserByLoginId = async (loginId) => {
  * @param {Integer} pageSize 
  * @param {Integer} pageNo 
  */
-exports.getFriendsTweets = async (userId, pageSize, pageNo) => {
+exports.getFriendsTweets = async (userId, pageSize, pageNo, friendList) => {
     try {
-        let friendsTweetsQuery = await User.findAll({
-            attributes: ['name', 'loginid'],
+        let friendsTweetsQuery = await Tweets.findAll({
             limit: pageSize,
             offset: ((pageNo - 1) * pageSize),
             where: {
-                id: {
-                    [Op.ne]: userId
-                },
+                userId: {
+                    [Op.in]: friendList
+                }
             },
             include: [
                 {
-                    model: Tweets,
-                    limit: pageSize,
-                    offset: ((pageNo - 1) * pageSize),
-                    order: [['updatedAt', 'DESC']],
-                    include: {
-                        model: Like,
-                        where: {
-                            "postType": POSTTYPE.tweet,
-                        },
-                        required: false,
-                        order: [['updatedAt', 'DESC']],
-                    }
-                },
-                {
-                    model: Relationships,
+                    model: Like,
                     where: {
-                        [Op.or]: [
-                            { userOneId: userId },
-                            { userTwoId: userId },
-                        ]
-                    }
+                        postType: POSTTYPE.tweet,
+                    },
+                    required: false,
                 },
             ],
+            order: [['updatedAt', 'DESC']],
         })
-
+        
         return utils.classResponse(true, friendsTweetsQuery, "")
     } catch (err) {
         return utils.classResponse(false, {}, ERROR.query_error)

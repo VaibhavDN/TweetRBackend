@@ -31,7 +31,7 @@ routerGetUserDetail.post('/', async (req, res, next) => {
         return
     })
 
-    response = JSON.stringify(getUserDetailsQuery)
+    response = JSON.parse(JSON.stringify(getUserDetailsQuery))
 
     res.send(response)
 
