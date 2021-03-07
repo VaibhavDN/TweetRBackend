@@ -1,12 +1,13 @@
 //! Debug controller
 
 const express = require('express')
-const usersModel = require('../models/Users')
-const { Tweets } = require('../models/Tweets')
-const { Comments } = require('../models/Comments')
-const Relationships = require('../models/Relationships')
-const { Like } = require('../models/Like')
 const routerGetUserDetail = express.Router()
+
+const usersModel = require('../models/Users')
+const Tweets = require('../models/Tweets').Tweets
+const Comments = require('../models/Comments').Comments
+const Relationships = require('../models/Relationships')
+const Like = require('../models/Like').Like
 
 routerGetUserDetail.post('/', async (req, res, next) => {
     let response = ""

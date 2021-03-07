@@ -1,8 +1,8 @@
 const Users = require("../Users/Users")
 
 const utils = require('../../utils')
-const error = require('../../errorConstants')
-const Constants = require('./Constants')
+const ERROR = require('../../errorConstants').ERROR
+const DBTOFRIENDSTATUS = require('./Constants').DBTOFRIENDSTATUS
 
 /**
  * Checks if email is valid using regex
@@ -52,7 +52,7 @@ const validateUser = async (res, userId) => {
     let userExistsQuery = await Users.findIfUserExists(userId)
 
     if (userExistsQuery.data == null || userExistsQuery.success == false) {
-        utils.sendResponse(res, false, {}, error.ERROR.user_doesnot_exist)
+        utils.sendResponse(res, false, {}, ERROR.user_doesnot_exist)
         return
     }
 }
@@ -64,16 +64,16 @@ const validateUser = async (res, userId) => {
  */
 const reFormatFriendList = (data) => {
     for(let itr = 0; itr < data.length; itr++) {
-        data[itr].status = Constants.DBTOFRIENDSTATUS[data[itr].status]
+        data[itr].status = DBTOFRIENDSTATUS[data[itr].status]
     }
 
     return data
 }
 
 module.exports = {
-    'isEmailValid': isEmailValid,
-    'isPhoneValid': isPhoneValid,
-    'isNameValid': isNameValid,
-    'validateUser': validateUser,
-    'reFormatFriendList': reFormatFriendList,
+    isEmailValid,
+    isPhoneValid,
+    isNameValid,
+    validateUser,
+    reFormatFriendList,
 }

@@ -1,5 +1,5 @@
 const utils = require("../utils")
-const error = require("../errorConstants").ERROR
+const ERROR = require("../errorConstants").ERROR
 
 /**
  * Logs device analytics
@@ -13,7 +13,7 @@ exports.deviceAnalytics = (req, res, next) => {
 
     if(Object.keys(analyticsObject).length === 0) {
         console.log("Sorry, analyticsObject was empty")
-        return utils.sendResponse(res, false, {}, error.error_data_field)
+        return utils.sendResponse(res, false, {}, ERROR.error_data_field)
     }
 
     console.log(analyticsObject)

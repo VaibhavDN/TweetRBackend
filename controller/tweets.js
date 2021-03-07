@@ -5,7 +5,7 @@ const Relationships = require('../classes/Relationships/Relationships')
 const Functions = require('../classes/Tweets/Functions')
 const Constants = require('../classes/Tweets/Constants')
 const text = require('../text').TEXT
-const error = require('../errorConstants').ERROR
+const ERROR = require('../errorConstants').ERROR
 const utils = require('../utils')
 
 /**
@@ -30,7 +30,7 @@ exports.addTweet = async (req, res, next) => {
     let userExistsQuery = await Users.findIfUserExists(userId)
 
     if (userExistsQuery.data == null || userExistsQuery.success == false) {
-        return utils.sendResponse(res, false, {}, error.user_doesnot_exist)
+        return utils.sendResponse(res, false, {}, ERROR.user_doesnot_exist)
     }
 
     let newTweetQuery = await Tweets.addNewTweet(userExistsQuery.data.id, userExistsQuery.data.name, userExistsQuery.data.loginid, tweettext) 
@@ -57,7 +57,7 @@ exports.getTweets = async (req, res, next) => {
     pageNo = parseInt(pageNo)
 
     if (isNaN(pageNo) || isNaN(userId)) {
-        return utils.sendResponse(res, false, {}, error.parameters_missing)
+        return utils.sendResponse(res, false, {}, ERROR.parameters_missing)
     }
 
     await Functions.validateUser(res, userId)
@@ -76,7 +76,7 @@ exports.getTweets = async (req, res, next) => {
     reformatedData = Functions.reformatTweetData(publicTweets.data, userId, Constants.TWEETTYPE.public)
 
     if (reformatedData == null) {
-        return utils.sendResponse(res, false, {}, error.user_doesnot_exist)
+        return utils.sendResponse(res, false, {}, ERROR.user_doesnot_exist)
     }
 
     return utils.sendResponse(res, true, reformatedData, "")
@@ -100,7 +100,7 @@ exports.updateTweet = async (req, res, next) => {
     tweettext = tweettext.toString()
 
     if (isNaN(userId) || isNaN(tweetId) || tweettext.length === 0) {
-        return utils.sendResponse(res, false, {}, error.parameters_missing)
+        return utils.sendResponse(res, false, {}, ERROR.parameters_missing)
     }
 
     await Functions.validateUser(res, userId)
@@ -108,7 +108,7 @@ exports.updateTweet = async (req, res, next) => {
     let updateTweetData = (await Tweets.updateExistingTweet(tweetId, userId, tweettext)).data
 
     if (updateTweetData[0] === Constants.QUERYFAILED) {
-        return utils.sendResponse(res, false, {}, error.tweet_doesnot_exist)
+        return utils.sendResponse(res, false, {}, ERROR.tweet_doesnot_exist)
     }
 
     return utils.sendResponse(res, true, text.tweet_updated, "")
@@ -127,13 +127,13 @@ exports.deleteTweet = async (req, res, next) => {
     tweetId = parseInt(tweetId)
 
     if (isNaN(tweetId)) {
-        return utils.sendResponse(res, false, {}, error.parameters_missing)
+        return utils.sendResponse(res, false, {}, ERROR.parameters_missing)
     }
 
     let data = (await Tweets.deleteExistingTweet(tweetId)).data
 
     if (data === Constants.QUERYFAILED) {
-        return utils.sendResponse(res, false, {}, error.tweet_doesnot_exist)
+        return utils.sendResponse(res, false, {}, ERROR.tweet_doesnot_exist)
     }
 
     return utils.sendResponse(res, true, text.tweet_deleted, "")
@@ -155,7 +155,7 @@ exports.isTweetLiked = async (req, res, next) => {
     postId = parseInt(postId)
 
     if (isNaN(userId) || isNaN(postId)) {
-        return utils.sendResponse(res, false, {}, error.parameters_missing)
+        return utils.sendResponse(res, false, {}, ERROR.parameters_missing)
     }
 
     await Functions.validateUser(res, userId)
@@ -183,7 +183,7 @@ exports.likeExistingTweet = async (req, res, next) => {
     likeType = likeType.toString()
 
     if (isNaN(userId) || isNaN(postId) || likeType.length === 0) {
-        return utils.sendResponse(res, false, {}, error.parameters_missing)
+        return utils.sendResponse(res, false, {}, ERROR.parameters_missing)
     }
 
     await Functions.validateUser(res, userId)
@@ -192,7 +192,7 @@ exports.likeExistingTweet = async (req, res, next) => {
 
     let alreadyLiked = (await Tweets.isLiked(userId, postId)).data.like
     if (alreadyLiked === true) {
-        return utils.sendResponse(res, false, {}, error.tweet_already_liked)
+        return utils.sendResponse(res, false, {}, ERROR.tweet_already_liked)
     }
 
     let likeTweetData = (await Tweets.likeTweet(userId, postId, likeType)).data
@@ -216,14 +216,14 @@ exports.unLikeExistingTweet = async (req, res, next) => {
     postId = parseInt(postId)
 
     if (isNaN(userId) || isNaN(postId)) {
-        return utils.sendResponse(res, false, {}, error.parameters_missing)
+        return utils.sendResponse(res, false, {}, ERROR.parameters_missing)
     }
 
     await Functions.validateUser(res, userId)
 
     let liked = (await Tweets.isLiked(userId, postId)).data.like
     if (liked === false) {
-        return utils.sendResponse(res, false, {}, error.tweet_already_unliked)
+        return utils.sendResponse(res, false, {}, ERROR.tweet_already_unliked)
     }
 
     let unLikeTweetData = (await Tweets.unLikeTweet(userId, postId)).data
@@ -244,7 +244,7 @@ exports.userLikeTweetList = async (req, res, next) => {
     userId = parseInt(userId)
 
     if (isNaN(userId)) {
-        return utils.sendResponse(res, false, {}, error.parameters_missing)
+        return utils.sendResponse(res, false, {}, ERROR.parameters_missing)
     }
 
     await Functions.validateUser(res, userId)
@@ -252,7 +252,7 @@ exports.userLikeTweetList = async (req, res, next) => {
     let tweetList = await Tweets.getLikeTweetList(userId)
 
     if (tweetList.success == false) {
-        return utils.sendResponse(res, false, {}, error.error_data_field)
+        return utils.sendResponse(res, false, {}, ERROR.error_data_field)
     }
 
     return utils.sendResponse(res, true, tweetList.data, "")
@@ -271,13 +271,13 @@ exports.tweetLikeUserList = async (req, res, next) => {
     postId = parseInt(postId)
 
     if (isNaN(postId)) {
-        return utils.sendResponse(res, false, {}, error.parameters_missing)
+        return utils.sendResponse(res, false, {}, ERROR.parameters_missing)
     }
 
     let userList = await Tweets.getLikeUserList(postId)
 
     if (userList.success === false) {
-        return utils.sendResponse(res, false, {}, error.error_data_field)
+        return utils.sendResponse(res, false, {}, ERROR.error_data_field)
     }
 
     return utils.sendResponse(res, true, userList.data, "")

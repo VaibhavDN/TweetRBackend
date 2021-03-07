@@ -1,6 +1,7 @@
-const { Tweets } = require('./Tweets')
-const { Like } = require('./Like')
 const sequelizeImports = require('.')
+
+const Tweets = require('./Tweets')
+const Like = require('./Like')
 
 const User = sequelizeImports.sequelize.define('User', {
     name: {

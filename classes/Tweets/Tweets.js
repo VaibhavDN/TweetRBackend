@@ -1,11 +1,12 @@
+const Op = require("sequelize").Op
+
 const Tweets = require("../../models/Tweets").Tweets
 const User = require("../../models/Users")
 const Like = require("../../models/Like").Like
 
 const ERROR = require('../../errorConstants').ERROR
 const utils = require("../../utils")
-const Constants = require("./Constants")
-const Op = require("sequelize").Op
+const POSTTYPE = require("./Constants").POSTTYPE
 
 
 /**
@@ -97,7 +98,7 @@ const isLiked = async (userId, postId) => {
             where: {
                 'userId': userId,
                 'postId': postId,
-                'postType': Constants.POSTTYPE.tweet,
+                'postType': POSTTYPE.tweet,
             }
         })
 
@@ -117,7 +118,7 @@ const likeTweet = async (userId, postId, likeType) => {
             'userId': userId,
             'postId': postId,
             'likeType': likeType,
-            'postType': Constants.POSTTYPE.tweet,
+            'postType': POSTTYPE.tweet,
         })
 
         return utils.classResponse(true, likeTweetQuery, "")
@@ -132,7 +133,7 @@ const unLikeTweet = async (userId, postId) => {
             where: {
                 'userId': userId,
                 'postId': postId,
-                'postType': Constants.POSTTYPE.tweet,
+                'postType': POSTTYPE.tweet,
             }
         })
 
@@ -151,7 +152,7 @@ const getLikeUserList = async (postId) => {
         let userListQuery = await Like.findAll({
             where: {
                 'postId': postId,
-                'postType': Constants.POSTTYPE.tweet,
+                'postType': POSTTYPE.tweet,
             },
             include: {
                 attributes: ['id', 'name', 'loginid'],
@@ -174,7 +175,7 @@ const getLikeTweetList = async (userId) => {
         let tweetListQuery = await Like.findAll({
             where: {
                 userId: userId,
-                'postType': Constants.POSTTYPE.tweet,
+                'postType': POSTTYPE.tweet,
             },
             include: {
                 model: Tweets,
@@ -188,13 +189,13 @@ const getLikeTweetList = async (userId) => {
 }
 
 module.exports = {
-    'findIfTweetExists': findIfTweetExists,
-    'addNewTweet': addNewTweet,
-    'updateExistingTweet': updateExistingTweet,
-    'deleteExistingTweet': deleteExistingTweet,
-    'isLiked': isLiked,
-    'likeTweet': likeTweet,
-    'unLikeTweet': unLikeTweet,
-    'getLikeUserList': getLikeUserList,
-    'getLikeTweetList': getLikeTweetList,
+    findIfTweetExists,
+    addNewTweet,
+    updateExistingTweet,
+    deleteExistingTweet,
+    isLiked,
+    likeTweet,
+    unLikeTweet,
+    getLikeUserList,
+    getLikeTweetList,
 }

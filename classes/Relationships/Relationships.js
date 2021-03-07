@@ -1,9 +1,10 @@
+const Op = require('sequelize').Op
+
 const Relationships = require("../../models/Relationships")
 const User = require("../../models/Users")
 
-const Op = require('sequelize').Op
 const ERROR = require('../../errorConstants').ERROR
-const Constants = require("./Constants")
+const FRIENDSTATUS = require("./Constants").FRIENDSTATUS
 const utils = require('../../utils')
 
 /**
@@ -49,13 +50,13 @@ const createFriendRequest = async (currentUserId, friendUserId) => {
             {
                 userOneId: currentUserId,
                 userTwoId: friendUserId,
-                status: Constants.FRIENDSTATUS.pending,
+                status: FRIENDSTATUS.pending,
                 actionUserId: currentUserId,
             },
             {
                 userOneId: friendUserId,
                 userTwoId: currentUserId,
-                status: Constants.FRIENDSTATUS.pending,
+                status: FRIENDSTATUS.pending,
                 actionUserId: currentUserId,
             },
         ])
@@ -95,7 +96,7 @@ const changeRequestStatus = async (currentUserId, friendUserId, status) => {
                         ]
                     }
                 ],
-                status: Constants.FRIENDSTATUS.pending, // Status pending then only accept/decline
+                status: FRIENDSTATUS.pending, // Status pending then only accept/decline
             }
         })
 
@@ -137,7 +138,7 @@ const friendRequestList = async (userId) => {
                 [Op.or]: [
                     { userTwoId: userId, }
                 ],
-                status: Constants.FRIENDSTATUS.pending,
+                status: FRIENDSTATUS.pending,
                 actionUserId: {
                     [Op.ne]: userId,
                 }
@@ -155,9 +156,9 @@ const friendRequestList = async (userId) => {
 }
 
 module.exports = {
-    'checkAlreadyFriends': checkAlreadyFriends,
-    'createFriendRequest': createFriendRequest,
-    'changeRequestStatus': changeRequestStatus,
-    'getFriendList': getFriendList,
-    'friendRequestList': friendRequestList,
+    checkAlreadyFriends,
+    createFriendRequest,
+    changeRequestStatus,
+    getFriendList,
+    friendRequestList,
 }

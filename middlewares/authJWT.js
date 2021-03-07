@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken')
 
 const authConfig = require('../config/authConfig')
 const utils = require('../utils')
-const error = require('../errorConstants').ERROR
+const ERROR = require('../errorConstants').ERROR
 
 /**
  * Verifies JWT token sent by the frontend and sets 
@@ -17,12 +17,12 @@ exports.verifyJWT = (req, res, next) => {
     token = token.toString()
 
     if (token.length === 0) {
-        return utils.sendResponse(res, false, {}, error.parameters_missing)
+        return utils.sendResponse(res, false, {}, ERROR.parameters_missing)
     }
 
     jwt.verify(token, authConfig.secret, (err, decoded) => {
         if (err) {
-            return utils.sendResponse(res, false, {}, error.unauthorized_token)
+            return utils.sendResponse(res, false, {}, ERROR.unauthorized_token)
         }
 
         req.userId = decoded.id

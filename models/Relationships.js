@@ -1,4 +1,5 @@
 const sequelizeImports = require('.')
+
 const User = require('./Users')
 
 const Relationships = sequelizeImports.sequelize.define('Relationships', {

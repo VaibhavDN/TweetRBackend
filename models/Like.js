@@ -1,6 +1,7 @@
 const sequelizeImports = require(".")
-const { Comments } = require("./Comments")
-const { Tweets } = require("./Tweets")
+
+const Comments = require("./Comments")
+const Tweets = require("./Tweets")
 
 const Like = sequelizeImports.sequelize.define('Likes', {
     id: {
@@ -48,6 +49,4 @@ Like.belongsTo(Comments, {
 
 Like.sync()
 
-module.exports = {
-    'Like': Like,
-}
+module.exports = Like

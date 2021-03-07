@@ -1,6 +1,6 @@
 exports.TWEETTYPE = {
-    public: "public",
-    friend: "friend",
+    'public': 'public',
+    'friend': 'friend',
 }
 
 exports.POSTTYPE = {

@@ -1,6 +1,7 @@
-const text = require("../../text")
 const Users = require('../Users/Users')
+
 const Constants = require('./Constants')
+const text = require("../../text")
 
 /**
  * Checks if email is valid using regex
@@ -59,46 +60,6 @@ const countLikeType = (likeArray, likeTypeObjKeys) => {
     }
 
     return likeCount
-}
-
-/**
- * Helper function for public and friends tweet reformatter functions.
- * Helps in finding out selfLike and selfLikeType
- * @param {Object} tweet 
- * @param {String} name 
- * @param {String} loginid 
- * @param {Integer} userId 
- */
-const extractTweets = (tweet, name, loginid, userId) => {
-    let likeTypeObjKeys = Object.keys(Constants.LIKETYPES)
-
-    let likeCountObj = countLikeType(tweet.Likes, likeTypeObjKeys)
-
-    let data = {
-        'id': tweet.id,
-        'name': name,
-        'loginid': loginid,
-        'userId': tweet.userId,
-        'tweet': tweet.tweet,
-        'likeCount': tweet.Likes.length,
-        'selfLike': false,
-        'myLikeType': text.TEXT.unliked,
-        'createdAt': tweet.createdAt,
-        'updatedAt': tweet.updatedAt,
-        'type': Constants.TWEETTYPE.friend,
-        //'like': tweet.Likes,
-        'likeCountObj': likeCountObj,
-    }
-
-    for (let itr = 0; itr < tweet.Likes.length; itr++) {
-        if (tweet.Likes[itr].userId == userId) {
-            data['selfLike'] = true
-            data['myLikeType'] = likeTypeObjKeys[tweet.Likes[itr].likeType]
-            break
-        }
-    }
-
-    return data
 }
 
 /**
@@ -175,18 +136,19 @@ const getFriendsArray = (friendListData, userId) => {
  */
 const validateUser = async (res, userId) => {
     let userExistsQuery = await Users.findIfUserExists(userId)
-    let userExistsQueryStatus = userExistsQuery.success
 
-    if (userExistsQuery.data == null || userExistsQueryStatus == false) {
-        utils.sendResponse(res, false, PLACEHOLDER.empty_response, ERROR.user_doesnot_exist)
-        return
+    if (userExistsQuery.data == null || userExistsQuery.success == false) {
+        utils.sendResponse(res, false, {}, ERROR.user_doesnot_exist)
+        return false
     }
+
+    return true
 }
 
 module.exports = {
-    'isEmailValid': isEmailValid,
-    'isPhoneValid': isPhoneValid,
-    'reformatTweetData': reformatTweetData,
-    'getFriendsArray': getFriendsArray,
-    'validateUser': validateUser,
+    isEmailValid,
+    isPhoneValid,
+    reformatTweetData,
+    getFriendsArray,
+    validateUser,
 }

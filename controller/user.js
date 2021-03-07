@@ -3,7 +3,7 @@ const Functions = require('../classes/Users/Functions')
 const Relationships = require('../classes/Relationships/Relationships')
 
 const DBTOFRIENDSTATUS = require('../classes/Users/Constants').DBTOFRIENDSTATUS
-const error = require('../errorConstants').ERROR
+const ERROR = require('../errorConstants').ERROR
 const utils = require('../utils')
 const text = require('../text').TEXT
 
@@ -20,17 +20,17 @@ exports.verifyIfUserExists = async (req, res, next) => {
     loginParam = loginParam.toString()
 
     if (loginParam.length === 0) {
-        return utils.sendResponse(res, false, {}, error.parameters_missing)
+        return utils.sendResponse(res, false, {}, ERROR.parameters_missing)
     }
 
     if (!Functions.isEmailValid(loginParam) && !Functions.isPhoneValid(loginParam)) {
-        return utils.sendResponse(res, false, {}, error.invalid_email_phoneno)
+        return utils.sendResponse(res, false, {}, ERROR.invalid_email_phoneno)
     }
 
     let findQueryResponse = await Users.findUserByLoginId(loginParam)
 
     if (findQueryResponse.data == null) {
-        return utils.sendResponse(res, false, {}, error.user_doesnot_exist)
+        return utils.sendResponse(res, false, {}, ERROR.user_doesnot_exist)
     }
 
     let data = {
@@ -59,21 +59,21 @@ exports.userSignup = async (req, res, next) => {
     repassword = repassword.toString()
 
     if (name.length === 0 || loginParam.length === 0 || password.length === 0 || repassword.length === 0) {
-        return utils.sendResponse(res, false, {}, error.parameters_missing)
+        return utils.sendResponse(res, false, {}, ERROR.parameters_missing)
     }
 
     if ((!Functions.isEmailValid(loginParam) && !Functions.isPhoneValid(loginParam)) || !Functions.isNameValid(name)) {
-        return utils.sendResponse(res, false, {}, error.invalid_email_phoneno_name)
+        return utils.sendResponse(res, false, {}, ERROR.invalid_email_phoneno_name)
     }
 
     let findQueryResponse = await Users.findUserByLoginId(loginParam)
 
     if (findQueryResponse.data !== null) {
-        return utils.sendResponse(res, false, {}, error.user_already_exists)
+        return utils.sendResponse(res, false, {}, ERROR.user_already_exists)
     }
 
     if (password !== repassword) {
-        return utils.sendResponse(res, false, {}, error.invalid_password)
+        return utils.sendResponse(res, false, {}, ERROR.invalid_password)
     }
 
     let createQueryResponse = await Users.createNewUser(name, loginParam, password)
@@ -108,25 +108,25 @@ exports.updateUserProfile = async (req, res, next) => {
     newName = newName.toString()
 
     if (loginParam.length === 0 || oldPassword.length === 0 || ((password.length === 0 || rePassword.length === 0) && newName.length === 0)) {
-        return utils.sendResponse(res, false, {}, error.parameters_missing)
+        return utils.sendResponse(res, false, {}, ERROR.parameters_missing)
     }
 
     if (!Functions.isEmailValid(loginParam) && !Functions.isPhoneValid(loginParam)) {
-        return utils.sendResponse(res, false, {}, error.invalid_email_phoneno)
+        return utils.sendResponse(res, false, {}, ERROR.invalid_email_phoneno)
     }
 
     let findQueryData = (await Users.findUserByLoginId(loginParam)).data
 
     if (findQueryData === null) {
-        return utils.sendResponse(res, false, {}, error.user_doesnot_exist)
+        return utils.sendResponse(res, false, {}, ERROR.user_doesnot_exist)
     }
 
     if (password !== rePassword) {
-        return utils.sendResponse(res, false, {}, error.invalid_password)
+        return utils.sendResponse(res, false, {}, ERROR.invalid_password)
     }
 
     if (findQueryData.password !== oldPassword) {
-        return utils.sendResponse(res, false, {}, error.invalid_password)
+        return utils.sendResponse(res, false, {}, ERROR.invalid_password)
     }
 
     let updateQuery = {}
@@ -158,7 +158,7 @@ exports.userSearch = async (req, res, next) => {
     userId = parseInt(userId)
 
     if (searchText.length === 0 || isNaN(userId)) {
-        return utils.sendResponse(res, false, {}, error.parameters_missing)
+        return utils.sendResponse(res, false, {}, ERROR.parameters_missing)
     }
 
     let friendSearchArray = (await Users.searchFriends(searchText, userId)).data
@@ -179,7 +179,7 @@ exports.userSearch = async (req, res, next) => {
     let publicSearchArray = (await Users.searchUnknowns(searchText, userId)).data
 
     if (publicSearchArray.length === 0) {
-        return utils.sendResponse(res, false, {}, error.user_doesnot_exist)
+        return utils.sendResponse(res, false, {}, ERROR.user_doesnot_exist)
     }
 
     for (let i = 0; i < publicSearchArray.length; i++) {
@@ -204,7 +204,7 @@ exports.getFriendRequestList = async (req, res, next) => {
     userId = parseInt(userId)
 
     if (isNaN(userId)) {
-        return utils.sendResponse(res, false, {}, error.parameters_missing)
+        return utils.sendResponse(res, false, {}, ERROR.parameters_missing)
     }
 
     await Functions.validateUser(res, userId)
@@ -212,7 +212,7 @@ exports.getFriendRequestList = async (req, res, next) => {
     let requestListQuery = await Relationships.friendRequestList(userId)
 
     if(requestListQuery.success === false) {
-        utils.sendResponse(res, false, {}, error.query_error)
+        utils.sendResponse(res, false, {}, ERROR.query_error)
     }
 
     requestListQuery.data = Functions.reFormatFriendList(requestListQuery.data)

@@ -1,5 +1,6 @@
 const sequelizeImports = require('.')
-const { Comments } = require('./Comments')
+
+const Comments = require('./Comments')
 
 const Tweets = sequelizeImports.sequelize.define('Tweets', {
     userId: {
@@ -35,6 +36,4 @@ Comments.belongsTo(Tweets, {
 
 Tweets.sync()
 
-module.exports = {
-    'Tweets': Tweets,
-}
+module.exports = Tweets

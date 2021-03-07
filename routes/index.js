@@ -9,6 +9,5 @@ router.use('/deviceanalytics', require('./analytics'))
 
 //!Debug routes
 router.use('/userdetails', require('../controller/getUserDetails'))
-router.use('/blob', require('../controller/images').getImageBlob)
 
 module.exports = router

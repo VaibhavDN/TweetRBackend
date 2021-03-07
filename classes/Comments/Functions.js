@@ -88,6 +88,6 @@ const validateUser = async (res, userId) => {
 }
 
 module.exports = {
-    'getCountAndSelfLike': getCountAndSelfLike,
-    'validateUser': validateUser,
+    getCountAndSelfLike,
+    validateUser,
 }

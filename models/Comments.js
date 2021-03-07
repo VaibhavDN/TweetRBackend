@@ -23,6 +23,4 @@ const Comments = sequelizeImports.sequelize.define('Comments', {
 
 Comments.sync()
 
-module.exports = {
-    'Comments': Comments,
-}
+module.exports = Comments

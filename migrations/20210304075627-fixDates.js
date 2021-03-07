@@ -1,10 +1,11 @@
 'use strict'
-const { Op } = require('sequelize');
-const users = require('../models/Users')
+const Op = require('sequelize').Op
+
+const Users = require('../models/Users')
 
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await users.update({
+    await Users.update({
       createdAt: Sequelize.DataTypes.NOW,
       updatedAt: Sequelize.DataTypes.NOW,
     }, {

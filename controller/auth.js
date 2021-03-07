@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken')
 const Users = require('../classes/Users/Users')
 
 const Functions = require('../classes/Users/Functions')
-const error = require('../errorConstants').ERROR
+const ERROR = require('../errorConstants').ERROR
 const utils = require('../utils')
 const authConfig = require('../config/authConfig')
 
@@ -23,21 +23,21 @@ exports.userLogin = async (req, res, next) => {
     password = password.toString()
 
     if (loginParam.length === 0 || password.length === 0) {
-        return utils.sendResponse(res, false, {}, error.parameters_missing)
+        return utils.sendResponse(res, false, {}, ERROR.parameters_missing)
     }
 
     if (!Functions.isEmailValid(loginParam) && !Functions.isPhoneValid(loginParam)) {
-        return utils.sendResponse(res, false, {}, error.invalid_email_phoneno)
+        return utils.sendResponse(res, false, {}, ERROR.invalid_email_phoneno)
     }
 
     let responseData = (await Users.findUserByLoginId(loginParam)).data
 
     if (responseData === null) {
-        return utils.sendResponse(res, false, {}, error.user_doesnot_exist)
+        return utils.sendResponse(res, false, {}, ERROR.user_doesnot_exist)
     }
 
     if (responseData.password !== password) {
-        return utils.sendResponse(res, false, {}, error.invalid_password)
+        return utils.sendResponse(res, false, {}, ERROR.invalid_password)
     }
 
     let token = jwt.sign({ id: responseData.id }, authConfig.secret, {

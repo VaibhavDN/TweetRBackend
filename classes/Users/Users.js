@@ -1,9 +1,10 @@
+const Op = require('sequelize').Op
+
 const Relationships = require('../../models/Relationships')
 const User = require('../../models/Users')
 const Tweets = require('../../models/Tweets').Tweets
 const Like = require('../../models/Like').Like
 
-const Op = require('sequelize').Op
 const ERROR = require('../../errorConstants').ERROR
 const utils = require('../../utils')
 const POSTTYPE = require('../Users/Constants').POSTTYPE
@@ -14,7 +15,7 @@ const POSTTYPE = require('../Users/Constants').POSTTYPE
  * @param {String} loginid 
  * @param {String} password 
  */
-exports.createNewUser = async (name, loginid, password) => {
+const createNewUser = async (name, loginid, password) => {
     try {
         let createQueryResponse = await User.create({
             name: name,
@@ -32,7 +33,7 @@ exports.createNewUser = async (name, loginid, password) => {
  * Checks if the user exists in the Users model
  * @param {Integer} userId User's id found in the Users model
  */
-exports.findIfUserExists = async (userId) => {
+const findIfUserExists = async (userId) => {
     try {
         let findQueryResponse = await User.findOne({
             where: {
@@ -50,7 +51,7 @@ exports.findIfUserExists = async (userId) => {
  * Find user through loginid field
  * @param {Integer} loginId 
  */
-exports.findUserByLoginId = async (loginId) => {
+const findUserByLoginId = async (loginId) => {
     try {
         let findQueryResponse = await User.findOne({
             where: {
@@ -71,7 +72,7 @@ exports.findUserByLoginId = async (loginId) => {
  * @param {Integer} pageSize 
  * @param {Integer} pageNo 
  */
-exports.getFriendsTweets = async (pageSize, pageNo, friendList) => {
+const getFriendsTweets = async (pageSize, pageNo, friendList) => {
     try {
         let friendsTweetsQuery = await Tweets.findAll({
             limit: pageSize,
@@ -92,7 +93,7 @@ exports.getFriendsTweets = async (pageSize, pageNo, friendList) => {
             ],
             order: [['updatedAt', 'DESC']],
         })
-        
+
         return utils.classResponse(true, friendsTweetsQuery, "")
     } catch (err) {
         return utils.classResponse(false, {}, ERROR.query_error)
@@ -106,7 +107,7 @@ exports.getFriendsTweets = async (pageSize, pageNo, friendList) => {
  * @param {Integer} pageNo 
  * @param {Array} friendList
  */
-exports.getPublicTweets = async (pageSize, pageNo, friendList) => {
+const getPublicTweets = async (pageSize, pageNo, friendList) => {
     try {
         let publicTweetsQuery = await Tweets.findAll({
             limit: pageSize,
@@ -139,7 +140,7 @@ exports.getPublicTweets = async (pageSize, pageNo, friendList) => {
  * @param {String} newName 
  * @param {String} loginParam 
  */
-exports.updateUserName = async (newName, loginParam) => {
+const updateUserName = async (newName, loginParam) => {
     try {
         let updateQueryResponse = await User.update(
             {
@@ -163,7 +164,7 @@ exports.updateUserName = async (newName, loginParam) => {
  * @param {String} password 
  * @param {String} loginParam 
  */
-exports.updateUserPassword = async (password, loginParam) => {
+const updateUserPassword = async (password, loginParam) => {
     try {
         let updateQueryResponse = await User.update(
             {
@@ -187,7 +188,7 @@ exports.updateUserPassword = async (password, loginParam) => {
  * @param {String} searchText 
  * @param {Integer} currentUserId 
  */
-exports.searchFriends = async (searchText, currentUserId) => {
+const searchFriends = async (searchText, currentUserId) => {
     try {
         let searchUserQuery = await User.findAll({
             attributes: ['id', 'name', 'loginid', 'updatedAt'],
@@ -227,7 +228,7 @@ exports.searchFriends = async (searchText, currentUserId) => {
  * @param {String} searchText 
  * @param {Integer} currentUserId 
  */
-exports.searchUnknowns = async (searchText, currentUserId) => {
+const searchUnknowns = async (searchText, currentUserId) => {
     try {
         let searchUnknownUserQuery = await User.findAll({
             attributes: ['id', 'name', 'loginid', 'updatedAt'],
@@ -244,10 +245,32 @@ exports.searchUnknowns = async (searchText, currentUserId) => {
                     [Op.ne]: currentUserId,
                 }
             },
+            include: {
+                model: Relationships,
+                where: {
+                    [Op.ne]: [
+                        { userOneId: currentUserId },
+                        { userTwoId: currentUserId },
+                    ]
+                },
+                order: [['updatedAt', 'DESC']],
+            },
         })
 
         return utils.classResponse(true, searchUnknownUserQuery, "")
     } catch (err) {
         return utils.classResponse(false, {}, ERROR.query_error)
     }
+}
+
+module.exports = {
+    createNewUser,
+    findIfUserExists,
+    findUserByLoginId,
+    getFriendsTweets,
+    getPublicTweets,
+    updateUserName,
+    updateUserPassword,
+    searchFriends,
+    searchUnknowns,
 }

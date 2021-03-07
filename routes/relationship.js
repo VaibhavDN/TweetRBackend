@@ -1,7 +1,8 @@
 const express = require('express')
 const router = express.Router()
-const friendRequest = require('../controller/changeFriendStatus').friendRequest
+
 const verifyJWT = require('../middlewares/authJWT').verifyJWT
+const friendRequest = require('../controller/changeFriendStatus').friendRequest
 
 router.use('/friendstatus', verifyJWT, friendRequest)
 

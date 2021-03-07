@@ -39,7 +39,7 @@ const sendResponse = (res, success, data, err) => {
 }
 
 module.exports = {
-    'jsonSafe': jsonSafe,
-    'classResponse': classResponse,
-    'sendResponse': sendResponse,
+    jsonSafe,
+    classResponse,
+    sendResponse,
 }

@@ -1,7 +1,8 @@
 const express = require('express')
 const router = express.Router()
-const comments = require('../controller/comments')
+
 const verifyJWT = require('../middlewares/authJWT').verifyJWT
+const comments = require('../controller/comments')
 
 router.post('/addcomment', verifyJWT, comments.addUserComment)
 router.get('/getcomments', verifyJWT, comments.getUserComments)

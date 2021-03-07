@@ -5,7 +5,7 @@ const Comments = require("../classes/Comments/Comments")
 const Functions = require('../classes/Comments/Functions')
 const Constants = require('../classes/Comments/Constants')
 const text = require('../text').TEXT
-const error = require('../errorConstants').ERROR
+const ERROR = require('../errorConstants').ERROR
 const utils = require('../utils')
 
 /**
@@ -26,25 +26,25 @@ exports.addUserComment = async (req, res, next) => {
     commentText = commentText.toString()
 
     if (isNaN(tweetId) || isNaN(userId) || commentText.length === 0) {
-        return utils.sendResponse(res, false, {}, error.parameters_missing)
+        return utils.sendResponse(res, false, {}, ERROR.parameters_missing)
     }
 
     let userExistsQuery = await Users.findIfUserExists(userId) 
 
     if (userExistsQuery.data == null || userExistsQuery.success == false) {
-        return utils.sendResponse(res, false, {}, error.user_doesnot_exist)
+        return utils.sendResponse(res, false, {}, ERROR.user_doesnot_exist)
     }
 
     let tweetExistsQuery = await Tweets.findIfTweetExists(tweetId)
 
     if (tweetExistsQuery.data == null || tweetExistsQuery.success == false) {
-        return utils.sendResponse(res, false, {}, error.tweet_doesnot_exist)
+        return utils.sendResponse(res, false, {}, ERROR.tweet_doesnot_exist)
     }
 
     let addCommentQuery = await Comments.addComment(userId, userExistsQuery.data.name, commentText, tweetExistsQuery.data.id)
 
     if (addCommentQuery.data == null || addCommentQuery.success == false) {
-        return utils.sendResponse(res, false, {}, error.add_comment_failed)
+        return utils.sendResponse(res, false, {}, ERROR.add_comment_failed)
     }
 
     return utils.sendResponse(res, true, addCommentQuery.data, "")
@@ -69,7 +69,7 @@ exports.getUserComments = async (req, res, next) => {
     pageNo = parseInt(pageNo)
 
     if (isNaN(userId) || isNaN(tweetId) || isNaN(pageNo)) {
-        return utils.sendResponse(res, false, error.parameters_missing)
+        return utils.sendResponse(res, false, ERROR.parameters_missing)
     }
 
     await Functions.validateUser(res, userId)
@@ -77,7 +77,7 @@ exports.getUserComments = async (req, res, next) => {
     let commentsQuery = await Comments.getComments(pageSize, pageNo, tweetId)
     
     if (commentsQuery.data == null || commentsQuery.success == false) {
-        return utils.sendResponse(res, false, {}, error.error_data_field)
+        return utils.sendResponse(res, false, {}, ERROR.error_data_field)
     }
 
     commentsQuery.data.Comments = Functions.getCountAndSelfLike(commentsQuery.data.Comments, userId)
@@ -103,7 +103,7 @@ exports.updateUserComment = async (req, res, next) => {
     commentText = commentText.toString()
 
     if (isNaN(userId) || isNaN(commentId) || commentText.length === 0) {
-        return utils.sendResponse(res, false, {}, error.parameters_missing)
+        return utils.sendResponse(res, false, {}, ERROR.parameters_missing)
     }
 
     await Functions.validateUser(res, userId)
@@ -111,7 +111,7 @@ exports.updateUserComment = async (req, res, next) => {
     let updateCommentData = (await Comments.updateComment(commentId, userId, commentText)).data
 
     if (updateCommentData[0] === Constants.QUERYFAILED) {
-        return utils.sendResponse(res, false, {}, error.comment_doesnot_exist)
+        return utils.sendResponse(res, false, {}, ERROR.comment_doesnot_exist)
     }
 
     return utils.sendResponse(res, true, text.comment_updated, "")
@@ -133,7 +133,7 @@ exports.isCommentLiked = async (req, res, next) => {
     postId = parseInt(postId)
 
     if (isNaN(userId) || isNaN(postId)) {
-        return utils.sendResponse(res, false, {}, error.parameters_missing)
+        return utils.sendResponse(res, false, {}, ERROR.parameters_missing)
     }
 
     await Functions.validateUser(res, userId)
@@ -161,7 +161,7 @@ exports.likeExistingComment = async (req, res, next) => {
     likeType = likeType.toString()
 
     if (isNaN(userId) || isNaN(postId) || likeType.length === 0) {
-        return utils.sendResponse(res, false, {}, error.parameters_missing)
+        return utils.sendResponse(res, false, {}, ERROR.parameters_missing)
     }
 
     await Functions.validateUser(res, userId)
@@ -170,7 +170,7 @@ exports.likeExistingComment = async (req, res, next) => {
 
     let alreadyLiked = (await Comments.isLiked(userId, postId)).data.like
     if (alreadyLiked == true) {
-        return utils.sendResponse(res, false, {}, error.comment_already_liked)
+        return utils.sendResponse(res, false, {}, ERROR.comment_already_liked)
     }
 
     let likeCommentData = (await Comments.likeComment(userId, postId, likeType)).data
@@ -194,14 +194,14 @@ exports.unLikeExistingComment = async (req, res, next) => {
     postId = parseInt(postId)
 
     if (isNaN(userId) || isNaN(postId)) {
-        return utils.sendResponse(res, false, {}, error.parameters_missing)
+        return utils.sendResponse(res, false, {}, ERROR.parameters_missing)
     }
 
     await Functions.validateUser(res, userId)
 
     let isLiked = (await Comments.isLiked(userId, postId)).data.like
     if (isLiked === false) {
-        return utils.sendResponse(res, false, {}, error.comment_already_unliked)
+        return utils.sendResponse(res, false, {}, ERROR.comment_already_unliked)
     }
 
     let unLikeTweetData = (await Comments.unLikeComment(userId, postId)).data
@@ -223,7 +223,7 @@ exports.userLikeCommentList = async (req, res, next) => {
     userId = parseInt(userId)
 
     if (isNaN(userId)) {
-        return utils.sendResponse(res, false, {}, error.parameters_missing)
+        return utils.sendResponse(res, false, {}, ERROR.parameters_missing)
     }
 
     await Functions.validateUser(res, userId)
@@ -231,7 +231,7 @@ exports.userLikeCommentList = async (req, res, next) => {
     let tweetList = await Comments.getLikeCommentList(userId)
 
     if (tweetList.success == false) {
-        return utils.sendResponse(res, false, {}, error.error_data_field)
+        return utils.sendResponse(res, false, {}, ERROR.error_data_field)
     }
 
     return utils.sendResponse(res, true, tweetList.data, "")
@@ -251,13 +251,13 @@ exports.commentLikeUserList = async (req, res, next) => {
     postId = parseInt(postId)
 
     if (isNaN(postId)) {
-        return utils.sendResponse(res, false, {}, error.parameters_missing)
+        return utils.sendResponse(res, false, {}, ERROR.parameters_missing)
     }
 
     let userList = await Comments.getLikeUserList(postId)
 
     if (userList.success == false) {
-        return utils.sendResponse(res, false, {}, error.error_data_field)
+        return utils.sendResponse(res, false, {}, ERROR.error_data_field)
     }
 
     return utils.sendResponse(res, true, userList.data, "")

@@ -1,9 +1,10 @@
+const Op = require('sequelize').Op
+
 const User = require('../../models/Users')
 const Like = require('../../models/Like').Like
 const Comments = require('../../models/Comments').Comments
 const Tweets = require('../../models/Tweets').Tweets
 
-const Op = require('sequelize').Op
 const ERROR = require('../../errorConstants').ERROR
 const utils = require('../../utils')
 const constants = require('./Constants')
@@ -205,12 +206,12 @@ const getLikeCommentList = async (userId) => {
 }
 
 module.exports = {
-    'getComments': getComments,
-    'addComment': addComment,
-    'updateComment': updateComment,
-    'isLiked': isLiked,
-    'likeComment': likeComment,
-    'unLikeComment': unLikeComment,
-    'getLikeUserList': getLikeUserList,
-    'getLikeCommentList': getLikeCommentList,
+    getComments,
+    addComment,
+    updateComment,
+    isLiked,
+    likeComment,
+    unLikeComment,
+    getLikeUserList,
+    getLikeCommentList,
 }

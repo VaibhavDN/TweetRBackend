@@ -18,5 +18,5 @@ const validateUser = async (res, userId) => {
 }
 
 module.exports = {
-    'validateUser': validateUser,
+    validateUser,
 }
