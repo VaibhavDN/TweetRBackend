@@ -1,33 +1,37 @@
 'use strict'
-const Op = require('sequelize').Op
-
-const Users = require('../models/Users')
-
 module.exports = {
   up: async (queryInterface, Sequelize) => {
-    await Users.update({
-      createdAt: Sequelize.DataTypes.NOW,
-      updatedAt: Sequelize.DataTypes.NOW,
-    }, {
-      where: {
-        [Op.or]: [
-          {
-            createdAt: {
-              [Op.is]: null,
-            },
-          },
-          {
-            updatedAt: {
-              [Op.is]: null,
-            },
-          }
-        ]
-      }
-    })
+    queryInterface.addColumn(
+      'User',
+      'createdAt',
+      {
+        type: Sequelize.DataTypes.NOW,
+        defaultValue: Sequelize.DataTypes.DATE,
+        allowNull: false,
+      },
+    )
+
+    queryInterface.addColumn(
+      'User',
+      'updatedAt',
+      {
+        type: Sequelize.DataTypes.NOW,
+        defaultValue: Sequelize.DataTypes.DATE,
+        allowNull: false,
+      },
+    )
   },
 
   down: async (queryInterface, Sequelize) => {
-    // Nothing to do here!!!!
+    queryInterface.removeColumn(
+      'User',
+      'createdAt',
+    )
+
+    queryInterface.removeColumn(
+      'User',
+      'updatedAt',
+    )
   }
 }
 

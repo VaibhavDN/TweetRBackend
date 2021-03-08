@@ -1,10 +1,11 @@
+const utils = require('../utils')
+
 const Relationships = require('../classes/Relationships/Relationships')
 const Constants = require('../classes/Relationships/Constants')
 const Functions = require('../classes/Relationships/Functions')
 
 const text = require('../text').TEXT
 const error = require('../errorConstants').ERROR
-const utils = require('../utils')
 
 /**
  * Friend request controller
@@ -13,28 +14,27 @@ const utils = require('../utils')
  * @param {Object} next 
  */
 exports.friendRequest = async (req, res, next) => {
-    console.log(req.body, req.baseUrl, req.url)
+    let body = req.body
+    let userId = parseInt(req.userId)
+    let friendUserId = parseInt(body.friendUserId)
+    let status = body.status || ""
 
-    let userId = req.userId
-    let friendUserId = req.body.friendUserId
-    let status = req.body.status || ""
-
-    userId = parseInt(userId)
-    friendUserId = parseInt(friendUserId)
-    status = status.toString()
-
-    if(isNaN(userId) || isNaN(friendUserId) || status.length === 0) {
+    if(utils.checkIsNaN(userId, friendUserId) || status.length === 0) {
         return utils.sendResponse(res, false, {}, error.parameters_missing)
     }
 
-    console.log(userId, friendUserId)
-    await Functions.validateUser(res, userId)
-    await Functions.validateUser(res, friendUserId)
+    if(!await Functions.validateUser(userId) || !await Functions.validateUser(friendUserId)) {
+        return utils.sendResponse(res, false, {}, ERROR.user_doesnot_exist)
+    }
 
     status = Constants.FRIENDSTATUS[status]
 
     if (status === Constants.FRIENDSTATUS.pending) {
         let friendRequestExists = await Relationships.checkAlreadyFriends(userId, friendUserId)
+
+        if(friendRequestExists.success === false) {
+            return utils.sendResponse(res, false, {}, ERROR.query_error)
+        }
 
         if (friendRequestExists.data !== null) {
             return utils.sendResponse(res, false, {}, error.request_exists)
@@ -42,12 +42,20 @@ exports.friendRequest = async (req, res, next) => {
 
         let createFriendQuery = await Relationships.createFriendRequest(userId, friendUserId)
 
+        if(createFriendQuery.success === false) {
+            return utils.sendResponse(res, false, {}, ERROR.query_error)
+        }
+
         return utils.sendResponse(res, true, createFriendQuery.data, "")
     }
     else if (status === Constants.FRIENDSTATUS.accepted || status === Constants.FRIENDSTATUS.declined) {
-        let changeFriendData = (await Relationships.changeRequestStatus(userId, friendUserId, status)).data
+        let changeFriendQuery = await Relationships.changeRequestStatus(userId, friendUserId, status)
+
+        if(changeFriendQuery.success === false) {
+            return utils.sendResponse(res, false, {}, ERROR.query_error)
+        }
         
-        if (changeFriendData[0] === Constants.ERRORCODE.zero) {
+        if (changeFriendQuery.data[0] === Constants.ERRORCODE.zero) {
             return utils.sendResponse(res, false, {}, error.request_doesnot_exist)
         }
 

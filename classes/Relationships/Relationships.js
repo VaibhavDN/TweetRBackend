@@ -1,11 +1,12 @@
 const Op = require('sequelize').Op
+const utils = require('../../utils')
 
 const Relationships = require("../../models/Relationships")
 const User = require("../../models/Users")
+const FRIENDSTATUS = require("./Constants").FRIENDSTATUS
 
 const ERROR = require('../../errorConstants').ERROR
-const FRIENDSTATUS = require("./Constants").FRIENDSTATUS
-const utils = require('../../utils')
+
 
 /**
  * Checks if friend request already exists between two users

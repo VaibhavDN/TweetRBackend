@@ -1,12 +1,12 @@
 const Op = require('sequelize').Op
+const utils = require('../../utils')
 
 const Relationships = require('../../models/Relationships')
 const User = require('../../models/Users')
-const Tweets = require('../../models/Tweets').Tweets
-const Like = require('../../models/Like').Like
+const Tweets = require('../../models/Tweets')
+const Like = require('../../models/Like')
 
 const ERROR = require('../../errorConstants').ERROR
-const utils = require('../../utils')
 const POSTTYPE = require('../Users/Constants').POSTTYPE
 
 /**

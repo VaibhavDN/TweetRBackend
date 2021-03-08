@@ -1,6 +1,6 @@
 const Users = require('../Users/Users')
-
 const Constants = require('./Constants')
+
 const text = require("../../text")
 
 /**
@@ -131,14 +131,12 @@ const getFriendsArray = (friendListData, userId) => {
 
 /**
  * Checks if user with userId exists in the database
- * @param {Object} res 
  * @param {Integer} userId 
  */
-const validateUser = async (res, userId) => {
+const validateUser = async (userId) => {
     let userExistsQuery = await Users.findIfUserExists(userId)
 
     if (userExistsQuery.data == null || userExistsQuery.success == false) {
-        utils.sendResponse(res, false, {}, ERROR.user_doesnot_exist)
         return false
     }
 

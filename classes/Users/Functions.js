@@ -1,7 +1,4 @@
 const Users = require("../Users/Users")
-
-const utils = require('../../utils')
-const ERROR = require('../../errorConstants').ERROR
 const DBTOFRIENDSTATUS = require('./Constants').DBTOFRIENDSTATUS
 
 /**
@@ -48,13 +45,14 @@ const isPhoneValid = (phone) => {
  * @param {Object} res 
  * @param {Integer} userId 
  */
-const validateUser = async (res, userId) => {
+const validateUser = async (userId) => {
     let userExistsQuery = await Users.findIfUserExists(userId)
 
     if (userExistsQuery.data == null || userExistsQuery.success == false) {
-        utils.sendResponse(res, false, {}, ERROR.user_doesnot_exist)
-        return
+        return false
     }
+
+    return true
 }
 
 /**

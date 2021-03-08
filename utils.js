@@ -38,8 +38,19 @@ const sendResponse = (res, success, data, err) => {
     })
 }
 
+const checkIsNaN = (...numbers) => {
+    for(let itr = 0; itr < numbers.length; itr++) {
+        if(isNaN(numbers[itr])) {
+            return true
+        }
+    }
+
+    return false
+}
+
 module.exports = {
     jsonSafe,
     classResponse,
     sendResponse,
+    checkIsNaN,
 }

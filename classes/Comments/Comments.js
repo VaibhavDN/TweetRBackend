@@ -1,13 +1,12 @@
 const Op = require('sequelize').Op
+const utils = require('../../utils')
 
-const User = require('../../models/Users')
-const Like = require('../../models/Like').Like
-const Comments = require('../../models/Comments').Comments
-const Tweets = require('../../models/Tweets').Tweets
+const Like = require('../../models/Like')
+const Comments = require('../../models/Comments')
+const Tweets = require('../../models/Tweets')
+const POSTTYPE = require('./Constants').POSTTYPE
 
 const ERROR = require('../../errorConstants').ERROR
-const utils = require('../../utils')
-const constants = require('./Constants')
 
 /**
  * Performs database call to get comments for a particular tweet
@@ -26,7 +25,7 @@ const getComments = async (pageSize, pageNo, tweetId) => {
                 include: {
                     model: Like,
                     where: {
-                        postType: constants.POSTTYPE.comment
+                        postType: POSTTYPE.comment
                     },
                     required: false,
                 },
@@ -92,126 +91,10 @@ const updateComment = async (commentId, commentersId, commentText) => {
     }
 }
 
-/**
- * Database call to check if a comment is liked
- * @param {Integer} userId 
- * @param {Integer} commentId 
- */
-const isLiked = async (userId, postId) => {
-    try {
-        let isLikedQuery = await Like.findOne({
-            where: {
-                'userId': userId,
-                'postId': postId,
-                'postType': constants.POSTTYPE.comment,
-            }
-        })
 
-        if (isLikedQuery == null) {
-            return utils.classResponse(true, { like: false }, "")
-        }
-    } catch (err) {
-        return utils.classResponse(false, {}, ERROR.error_data_field)
-    }
-
-    return utils.classResponse(true, { like: true }, "")
-}
-
-/**
- * Database call to like a comment
- * @param {Integer} userId 
- * @param {Integer} commentId 
- */
-const likeComment = async (userId, postId, likeType) => {
-    try {
-        let likeCommentQuery = await Like.create({
-            'userId': userId,
-            'postId': postId,
-            'postType': constants.POSTTYPE.comment,
-            'likeType': likeType,
-        })
-
-        return utils.classResponse(true, likeCommentQuery, "")
-    } catch (err) {
-        console.log(err)
-        return utils.classResponse(false, {}, ERROR.query_error)
-    }
-}
-
-/**
- * Database call to unlike a comment
- * @param {Integer} userId 
- * @param {Integer} commentId 
- */
-const unLikeComment = async (userId, postId) => {
-    try {
-        let unLikeCommentQuery = await Like.destroy({
-            where: {
-                'userId': userId,
-                'postId': postId,
-                'postType': constants.POSTTYPE.comment,
-            }
-        })
-
-        return utils.classResponse(true, unLikeCommentQuery, "")
-    } catch (err) {
-        console.log(err)
-        return utils.classResponse(false, {}, ERROR.error_data_field)
-    }
-}
-
-/**
- * Get list of users who like a comment
- * @param {Integer} tweetId 
- */
-const getLikeUserList = async (postId) => {
-    try {
-        let userListQuery = await Like.findAll({
-            where: {
-                'postId': postId,
-                'postType': constants.POSTTYPE.comment,
-            },
-            include: {
-                attributes: ['id', 'name', 'loginid'],
-                model: User,
-            },
-        })
-
-        return utils.classResponse(true, userListQuery, "")
-    } catch (err) {
-        return utils.classResponse(false, {}, ERROR.error_data_field)
-    }
-}
-
-/**
- * Get list of comments liked by a user
- * @param {Integer} userId 
- */
-const getLikeCommentList = async (userId) => {
-    try {
-        let commentListQuery = await Like.findAll({
-            where: {
-                userId: userId,
-                'postType': constants.POSTTYPE.comment,
-            },
-            include: {
-                model: Comments,
-            },
-        })
-
-        return utils.classResponse(true, commentListQuery, "")
-    } catch (err) {
-        return utils.classResponse(false, {}, ERROR.error_data_field)
-    }
-}
 
 module.exports = {
     getComments,
     addComment,
     updateComment,
-    isLiked,
-    likeComment,
-    unLikeComment,
-    getLikeUserList,
-    getLikeCommentList,
 }
