@@ -15,7 +15,7 @@ const error = require('../errorConstants').ERROR
  */
 exports.friendRequest = async (req, res, next) => {
     let body = req.body
-    let userId = parseInt(req.userId)
+    let userId = parseInt(req.user)
     let friendUserId = parseInt(body.friendUserId)
     let status = body.status || ""
 

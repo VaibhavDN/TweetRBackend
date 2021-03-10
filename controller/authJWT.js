@@ -1,24 +1,28 @@
-const jwt = require('jsonwebtoken')
-const authConfig = require('../config/authConfig')
-const utils = require('../utils')
+const JWTstrategy = require('passport-jwt').Strategy
+const passportJWT = require('passport-jwt')
 const passport = require('passport')
-const localStrategy = require('passport-local').Strategy
+const secret = require('../config/authConfig').secret
 
-const User = require('../models/Users')
-const validateUser = require('../classes/Users/Functions').validateUser
+exports.passportStrategy = (passport) => {
+    passport.use(
+        new JWTstrategy({
+            secretOrKey: secret,
+            jwtFromRequest: passportJWT.ExtractJwt.fromHeader('x-access-token')
+        }, async (token, done) => {
+            return done(null, token.userId)
+        })
+    )
+}
 
-const ERROR = require('../errorConstants').ERROR
+exports.authenticate = passport.authenticate('jwt', {
+    session: false,
+    failureFlash: 'Invalid token',
+})
 
-/**
- * Verifies JWT token sent by the frontend and sets 
- * the userId in the req object
- * @param {Object} req 
- * @param {Object} res 
- * @param {Object} next 
- * @returns 
- */
-exports.verifyJWT = async (req, res, next) => {
+/*
+exports.verifyJWT = (req, res, next) => {
     let token = req.headers["x-access-token"] || ""
+    token = token.toString()
 
     if (token.length === 0) {
         return utils.sendResponse(res, false, {}, ERROR.parameters_missing)
@@ -29,13 +33,8 @@ exports.verifyJWT = async (req, res, next) => {
             return utils.sendResponse(res, false, {}, ERROR.unauthorized_token)
         }
 
-        let userId = decoded.id
-        if(!validateUser(userId)) {
-            return utils.sendResponse(res, false, {}, ERROR.user_doesnot_exist)
-        }
-
-        req.userId = userId
+        req.userId = decoded.id
         next()
     })
 }
-
+*/

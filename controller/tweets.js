@@ -17,7 +17,7 @@ const ERROR = require('../errorConstants').ERROR
  * @param {Object} next 
  */
 exports.addTweet = async (req, res, next) => {
-    let userId = parseInt(req.userId)
+    let userId = parseInt(req.user)
     let tweettext = req.body.tweetText || ""
 
     if (utils.checkIsNaN(userId) || tweettext.length === 0) {
@@ -49,7 +49,7 @@ exports.addTweet = async (req, res, next) => {
  * @param {Object} next 
  */
 exports.getTweets = async (req, res, next) => {
-    let userId = parseInt(req.userId)
+    let userId = parseInt(req.user)
     let pageNo = parseInt(req.query.page) || 1
     let pageSize = Constants.PAGESIZE
 
@@ -104,7 +104,7 @@ exports.getTweets = async (req, res, next) => {
  */
 exports.updateTweet = async (req, res, next) => {
     let body = req.body
-    let userId = parseInt(req.userId)
+    let userId = parseInt(req.user)
     let tweetId = parseInt(body.tweetId)
     let tweettext = body.tweettext || ""
 
@@ -164,7 +164,7 @@ exports.deleteTweet = async (req, res, next) => {
  * @param {Object} next 
  */
 exports.isTweetLiked = async (req, res, next) => {
-    let userId = parseInt(req.userId)
+    let userId = parseInt(req.user)
     let postId = parseInt(req.body.postId)
 
     if (utils.checkIsNaN(userId, postId)) {
@@ -193,7 +193,7 @@ exports.isTweetLiked = async (req, res, next) => {
  */
 exports.likeExistingTweet = async (req, res, next) => {
     let body = req.body
-    let userId = parseInt(req.userId)
+    let userId = parseInt(req.user)
     let postId = parseInt(body.postId)
     let likeType = body.likeType || ""
 
@@ -230,7 +230,7 @@ exports.likeExistingTweet = async (req, res, next) => {
  * @param {Object} next 
  */
 exports.unLikeExistingTweet = async (req, res, next) => {
-    let userId = parseInt(req.userId)
+    let userId = parseInt(req.user)
     let postId = parseInt(req.body.postId)
 
     if (utils.checkIsNaN(userId, postId)) {
@@ -264,7 +264,7 @@ exports.unLikeExistingTweet = async (req, res, next) => {
  * @param {Object} next 
  */
 exports.userLikeTweetList = async (req, res, next) => {
-    let userId = parseInt(req.userId)
+    let userId = parseInt(req.user)
 
     if (utils.checkIsNaN(userId)) {
         return utils.sendResponse(res, false, {}, ERROR.parameters_missing)

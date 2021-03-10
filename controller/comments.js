@@ -20,7 +20,7 @@ const ERROR = require('../errorConstants').ERROR
 exports.addUserComment = async (req, res, next) => {
     let body = req.body
     let tweetId = parseInt(body.postId)
-    let userId = parseInt(req.userId)
+    let userId = parseInt(req.user)
     let commentText = body.commentText || ""
 
     if (utils.checkIsNaN(tweetId, userId) || commentText.length === 0) {
@@ -67,7 +67,7 @@ exports.addUserComment = async (req, res, next) => {
  * @param {Object} next 
  */
 exports.getUserComments = async (req, res, next) => {
-    let userId = parseInt(req.userId)
+    let userId = parseInt(req.user)
     let tweetId = parseInt(req.query.postid)
     let pageNo = parseInt(req.query.page) || 1
     let pageSize = Constants.PAGESIZE
@@ -103,7 +103,7 @@ exports.getUserComments = async (req, res, next) => {
  */
 exports.updateUserComment = async (req, res, next) => {
     let body = req.body
-    let userId = parseInt(req.userId)
+    let userId = parseInt(req.user)
     let commentId = parseInt(body.commentId)
     let commentText = body.commentText || ""
 
@@ -136,7 +136,7 @@ exports.updateUserComment = async (req, res, next) => {
  * @param {Object} next 
  */
 exports.isCommentLiked = async (req, res, next) => {
-    let userId = parseInt(req.userId)
+    let userId = parseInt(req.user)
     let postId = parseInt(req.body.postId)
 
     if (utils.checkIsNaN(userId, postId)) {
@@ -165,7 +165,7 @@ exports.isCommentLiked = async (req, res, next) => {
  */
 exports.likeExistingComment = async (req, res, next) => {
     let body = req.body
-    let userId = parseInt(req.userId)
+    let userId = parseInt(req.user)
     let postId = parseInt(body.postId)
     let likeType = body.likeType || ""
 
@@ -206,7 +206,7 @@ exports.likeExistingComment = async (req, res, next) => {
  * @param {Object} next 
  */
 exports.unLikeExistingComment = async (req, res, next) => {
-    let userId = parseInt(req.userId)
+    let userId = parseInt(req.user)
     let postId = parseInt(req.body.postId)
 
     if (utils.checkIsNaN(userId, postId)) {
@@ -243,7 +243,7 @@ exports.unLikeExistingComment = async (req, res, next) => {
  * @param {Object} next 
  */
 exports.userLikeCommentList = async (req, res, next) => {
-    let userId = parseInt(req.userId)
+    let userId = parseInt(req.user)
 
     if (utils.checkIsNaN(userId)) {
         return utils.sendResponse(res, false, {}, ERROR.parameters_missing)

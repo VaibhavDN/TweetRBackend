@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken')
+const atob = require('atob')
 const utils = require('../utils')
 const authConfig = require('../config/authConfig')
 
@@ -48,9 +49,9 @@ exports.verifyIfUserExists = async (req, res, next) => {
  * @param {Object} next 
  */
 exports.userLogin = async (req, res, next) => {
-    let body = req.body
-    let loginParam = body.loginid || ""
-    let password = body.password || ""
+    let usernamePassword = decodeURIComponent(atob((req.headers.authorization).split(' ')[1]))
+    let loginParam = usernamePassword.split(':')[0] || ""
+    let password = usernamePassword.split(':')[1] || ""
 
     if (loginParam.length === 0 || password.length === 0) {
         return utils.sendResponse(res, false, {}, ERROR.parameters_missing)
@@ -75,7 +76,7 @@ exports.userLogin = async (req, res, next) => {
         return utils.sendResponse(res, false, {}, ERROR.invalid_password)
     }
 
-    let token = jwt.sign({ id: responseData.id }, authConfig.secret, {
+    let token = jwt.sign({ userId: responseData.id }, authConfig.secret, {
         expiresIn: 1800 // 30 minutes
     })
 
@@ -194,7 +195,7 @@ exports.updateUserProfile = async (req, res, next) => {
  */
 exports.userSearch = async (req, res, next) => {
     let searchText = req.body.searchText || "" // Search text matches with what is stored in loginid
-    let userId = parseInt(req.userId)
+    let userId = parseInt(req.user)
 
     if (searchText.length === 0 || utils.checkIsNaN(userId)) {
         return utils.sendResponse(res, false, {}, ERROR.parameters_missing)
@@ -247,7 +248,7 @@ exports.userSearch = async (req, res, next) => {
  * @param {Object} next 
  */
 exports.getFriendRequestList = async (req, res, next) => {
-    let userId = parseInt(req.userId)
+    let userId = parseInt(req.user)
 
     if (utils.checkIsNaN(userId)) {
         return utils.sendResponse(res, false, {}, ERROR.parameters_missing)
